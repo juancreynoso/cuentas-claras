@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Cuentas Claras ✈️</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #0f0f1a; font-family: 'Sora', sans-serif; color: #fff; }
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+
+  /* ── LOGIN ── */
+  .login-screen { position: fixed; inset: 0; background: #0f0f1a; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; padding: 40px 32px; }
+  .login-emoji { font-size: 52px; margin-bottom: 16px; }
+  .login-title { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .login-title span { color: #7c6fff; }
+  .login-sub { color: #555; font-size: 13px; margin-bottom: 36px; }
+  .login-input { width: 100%; max-width: 320px; background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 14px; padding: 14px 18px; color: #fff; font-family: 'Sora', sans-serif; font-size: 16px; outline: none; text-align: center; letter-spacing: 3px; transition: border-color 0.2s; margin-bottom: 12px; }
+  .login-input:focus { border-color: #7c6fff; }
+  .login-input::placeholder { letter-spacing: 1px; color: #444; }
+  .login-btn { width: 100%; max-width: 320px; padding: 14px; background: linear-gradient(135deg, #7c6fff, #5c4fff); border: none; border-radius: 14px; color: #fff; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .login-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(124,111,255,0.4); }
+  .login-error { color: #ff6b6b; font-size: 13px; margin-top: 10px; min-height: 20px; text-align: center; }
+  .login-screen.hidden { display: none; }
+
+  /* ── APP ── */
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+
+  .header { padding: 52px 20px 20px; background: linear-gradient(180deg, #13131f 0%, #0f0f1a 100%); }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .header-eyebrow { color: #666; font-size: 11px; font-family: 'Space Mono', monospace; letter-spacing: 2px; margin-bottom: 4px; }
+  .header-title { font-size: 26px; font-weight: 700; line-height: 1.1; }
+  .header-title span { color: #7c6fff; }
+  .header-total-label { color: #666; font-size: 11px; margin-bottom: 4px; text-align: right; }
+  .header-total { font-size: 22px; font-weight: 700; font-family: 'Space Mono', monospace; color: #4ECDC4; line-height: 1.4; }
+  .saving-badge { font-size: 10px; color: #7c6fff; text-align: right; margin-top: 2px; min-height: 14px; }
+
+  .avatares { display: flex; gap: 10px; justify-content: center; }
+  .avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #000; font-family: 'Space Mono', monospace; border: 2px solid transparent; transition: border-color 0.3s; }
+  .avatar.has-gastos { border-color: rgba(255,255,255,0.3); }
+  .avatar-name { font-size: 10px; color: #555; }
+  .avatar-amount { font-size: 10px; font-family: 'Space Mono', monospace; min-height: 14px; }
+
+  .tabs { display: flex; border-bottom: 1px solid #1e1e2e; position: sticky; top: 0; background: #0f0f1a; z-index: 50; }
+  .tab-btn { flex: 1; padding: 11px 8px; background: none; border: none; color: #666; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tab-btn.active { color: #fff; border-bottom-color: #7c6fff; }
+
+  .content { flex: 1; padding: 16px 16px 100px; overflow-y: auto; }
+
+  .gasto-card { background: #1a1a2e; border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid #2a2a3e; animation: fadeIn 0.3s ease; cursor: pointer; transition: border-color 0.2s; }
+  .gasto-card:hover { border-color: #7c6fff55; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .gasto-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .gasto-desc { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
+  .gasto-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .avatar-mini { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #000; flex-shrink: 0; }
+  .gasto-pagador { font-size: 12px; color: #666; }
+  .gasto-fecha { font-size: 11px; color: #444; font-family: 'Space Mono', monospace; }
+  .gasto-chips { display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap; }
+  .chip { font-size: 10px; padding: 2px 8px; border-radius: 20px; }
+  .gasto-right { display: flex; align-items: center; gap: 8px; }
+  .gasto-monto { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: #4ECDC4; white-space: nowrap; }
+  .edit-hint { font-size: 10px; color: #444; margin-top: 6px; text-align: right; }
+
+  .deuda-card { background: #1a1a2e; border-radius: 16px; padding: 16px; margin-bottom: 10px; border: 1px solid #2a2a3e; display: flex; align-items: center; gap: 12px; }
+  .deuda-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #000; flex-shrink: 0; font-family: 'Space Mono', monospace; }
+  .deuda-info { flex: 1; }
+  .deuda-texto { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .deuda-monto { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; color: #FF6B6B; }
+
+  .empty { text-align: center; padding: 60px 20px; color: #444; }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-title { font-size: 16px; margin-bottom: 8px; color: #666; }
+
+  .fab { position: fixed; bottom: 28px; right: 20px; width: 58px; height: 58px; border-radius: 50%; background: linear-gradient(135deg, #7c6fff, #5c4fff); border: none; color: white; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 24px rgba(124,111,255,0.5); transition: all 0.2s; z-index: 100; }
+  .fab:hover { transform: scale(1.08); }
+
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: flex; align-items: flex-end; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.25s; pointer-events: none; }
+  .modal-bg.open { opacity: 1; pointer-events: all; }
+  .modal { background: #13131f; border-radius: 24px 24px 0 0; padding: 24px 20px 40px; width: 100%; max-height: 93vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s ease; }
+  .modal-bg.open .modal { transform: translateY(0); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  .modal-title { font-size: 20px; font-weight: 700; }
+  .modal-close { background: #1a1a2e; border: none; color: #666; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12px; color: #666; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+  .input-field { width: 100%; background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 12px; padding: 12px 14px; color: #fff; font-family: 'Sora', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; appearance: none; }
+  .input-field:focus { border-color: #7c6fff; }
+  .input-field::placeholder { color: #444; }
+  input[type="date"].input-field::-webkit-calendar-picker-indicator { filter: invert(0.5); }
+
+  .participantes-grid { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .part-wrap { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; }
+  .part-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #000; font-family: 'Space Mono', monospace; border: 2px solid transparent; transition: all 0.2s; opacity: 0.35; }
+  .part-avatar.selected { opacity: 1; border-color: white; transform: scale(1.1); }
+  .part-name { font-size: 10px; color: #444; transition: color 0.2s; }
+  .part-name.selected { color: #fff; }
+  .split-hint { text-align: center; margin-top: 10px; font-size: 12px; color: #7c6fff; min-height: 18px; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+  .btn-primary { flex: 1; padding: 14px; background: linear-gradient(135deg, #7c6fff, #5c4fff); border: none; border-radius: 14px; color: #fff; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(124,111,255,0.4); }
+  .btn-primary:disabled { opacity: 0.4; cursor: default; }
+  .btn-danger { padding: 14px 20px; background: #2a1a1a; border: 1px solid #ff6b6b44; border-radius: 14px; color: #ff6b6b; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-danger:hover { background: #3a1a1a; }
+
+  .loading { text-align: center; padding: 60px 20px; color: #555; font-size: 14px; }
+  .error-banner { background: #2a1a1a; border: 1px solid #ff6b6b44; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #ff6b6b; display: none; }
+  .error-banner.show { display: block; }
+  .deudas-hint { text-align: center; font-size: 12px; color: #555; margin-bottom: 16px; }
+
+  /* ── CATEGORÍAS ── */
+  .cat-card { background: #1a1a2e; border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid #2a2a3e; cursor: pointer; transition: border-color 0.2s; }
+  .cat-card:hover { border-color: #3a3a5e; }
+  .cat-card.open { border-color: #7c6fff44; }
+  .cat-header { display: flex; align-items: center; gap: 12px; }
+  .cat-icon { font-size: 24px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; flex-shrink: 0; }
+  .cat-info { flex: 1; }
+  .cat-nombre { font-size: 15px; font-weight: 600; margin-bottom: 3px; }
+  .cat-count { font-size: 11px; color: #555; }
+  .cat-right { text-align: right; }
+  .cat-monto { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; }
+  .cat-pct { font-size: 11px; color: #555; margin-top: 2px; }
+  .cat-bar-wrap { margin-top: 12px; height: 4px; background: #2a2a3e; border-radius: 2px; overflow: hidden; }
+  .cat-bar { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+  .cat-gastos { margin-top: 12px; border-top: 1px solid #2a2a3e; padding-top: 10px; display: none; }
+  .cat-card.open .cat-gastos { display: block; }
+  .cat-gasto-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #1e1e2e; gap: 10px; }
+  .cat-gasto-row:last-child { border-bottom: none; }
+  .cat-gasto-desc { font-size: 13px; color: #ccc; flex: 1; }
+  .cat-gasto-meta { font-size: 11px; color: #555; margin-top: 1px; }
+  .cat-gasto-monto { font-family: 'Space Mono', monospace; font-size: 13px; color: #4ECDC4; white-space: nowrap; }
+  .cat-resumen { background: #13131f; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .cat-resumen-label { font-size: 12px; color: #555; margin-bottom: 3px; }
+  .cat-resumen-val { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; color: #4ECDC4; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-emoji">✈️</div>
+  <h1 class="login-title">Cuentas <span>Claras</span></h1>
+  <p class="login-sub">Ingresá la contraseña del grupo</p>
+  <input class="login-input" id="login-input" type="password" placeholder="contraseña" autocomplete="off">
+  <button class="login-btn" onclick="doLogin()">Entrar</button>
+  <p class="login-error" id="login-error"></p>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <p class="header-eyebrow">VIAJE EN GRUPO</p>
+        <h1 class="header-title">Cuentas<br><span>Claras</span> ✈️</h1>
+      </div>
+      <div>
+        <p class="header-total-label">Total gastado</p>
+        <p class="header-total" id="total">€0.00</p>
+        <p class="saving-badge" id="saving-badge"></p>
+      </div>
+    </div>
+    <div class="avatares" id="avatares"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-gastos" onclick="switchTab('gastos')">💸 Gastos (<span id="count">0</span>)</button>
+    <button class="tab-btn" id="tab-deudas" onclick="switchTab('deudas')">⚖️ Quién debe</button>
+    <button class="tab-btn" id="tab-cats" onclick="switchTab('cats')">📊 Stats</button>
+  </div>
+
+  <div class="content">
+    <div class="error-banner" id="error-banner">⚠️ <span id="error-msg"></span></div>
+    <div id="view-gastos"></div>
+    <div id="view-deudas" style="display:none"></div>
+    <div id="view-cats" style="display:none"></div>
+  </div>
+</div>
+
+<button class="fab" id="fab" style="display:none" onclick="openModal()">+</button>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Nuevo gasto</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">DESCRIPCIÓN</label>
+      <input class="input-field" id="f-desc" placeholder="Ej: Cena en restaurante" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label">MONTO (€)</label>
+      <input class="input-field" id="f-monto" placeholder="0.00" type="number" inputmode="decimal" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">FECHA</label>
+      <input class="input-field" id="f-fecha" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">¿QUIÉN PAGÓ?</label>
+      <select class="input-field" id="f-pagador"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">¿QUIÉNES PARTICIPAN?</label>
+      <div class="participantes-grid" id="f-participantes"></div>
+      <p class="split-hint" id="split-hint"></p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-danger" id="btn-eliminar" style="display:none" onclick="eliminarGastoActual()">Eliminar</button>
+      <button class="btn-primary" id="btn-guardar" onclick="guardarGasto()">Agregar gasto</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────
+const API_URL    = "https://cuentas-claras-api.juancreynoso11.workers.dev";
+const PASSWORD   = "viaje2026";
+const SESSION_KEY = "cc_auth";
+
+const PERSONAS = ["Hernan","Andrea","Francisco","Melisa","Juan Cruz"];
+const COLORES  = { "Hernan":"#FF6B6B","Andrea":"#4ECDC4","Francisco":"#45B7D1","Melisa":"#FFA07A","Juan Cruz":"#98D8C8" };
+const USD_RATE = 1.16; // 1 EUR = 1.2 USD
+
+function fmt(eur) {
+  return `€${eur.toFixed(2)} <span style="color:#888;font-size:0.8em">$${(eur*USD_RATE).toFixed(2)}</span>`;
+}
+function fmtCompact(eur) {
+  return `€${eur.toFixed(0)} <span style="color:#666;font-size:0.75em">$${(eur*USD_RATE).toFixed(0)}</span>`;
+}
+
+// ── ESTADO ──────────────────────────────────────────────────────
+let gastos = [];
+let participantesSeleccionados = new Set(PERSONAS);
+let editandoId = null; // null = nuevo gasto, número = editar
+
+// ── LOGIN ────────────────────────────────────────────────────────
+function checkLogin() {
+  if (sessionStorage.getItem(SESSION_KEY) === "ok") showApp();
+}
+
+function doLogin() {
+  const val = document.getElementById("login-input").value;
+  if (val === PASSWORD) {
+    sessionStorage.setItem(SESSION_KEY, "ok");
+    showApp();
+  } else {
+    document.getElementById("login-error").textContent = "Contraseña incorrecta";
+    document.getElementById("login-input").value = "";
+    setTimeout(() => document.getElementById("login-error").textContent = "", 2000);
+  }
+}
+
+document.getElementById("login-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") doLogin();
+});
+
+function showApp() {
+  document.getElementById("login-screen").classList.add("hidden");
+  document.getElementById("app").style.display = "";
+  document.getElementById("fab").style.display = "";
+  renderModalForm();
+  cargarGastos();
+}
+
+// ── HELPERS ─────────────────────────────────────────────────────
+function initials(name) { return name.split(" ").map(n => n[0]).join("").toUpperCase(); }
+
+function todayISO() {
+  const d = new Date();
+  return d.toISOString().split("T")[0];
+}
+
+function formatFecha(iso) {
+  // iso = "2026-03-28" → "28/03/2026"
+  const [y,m,d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function isoToDisplay(iso) { return formatFecha(iso); }
+
+function displayToISO(display) {
+  // "28/03/2026" → "2026-03-28"
+  const [d,m,y] = display.split("/");
+  return `${y}-${m}-${d}`;
+}
+
+// ── API ──────────────────────────────────────────────────────────
+function showError(msg) {
+  const b = document.getElementById("error-banner");
+  document.getElementById("error-msg").textContent = msg;
+  b.classList.add("show");
+  setTimeout(() => b.classList.remove("show"), 5000);
+}
+function setSaving(msg) { document.getElementById("saving-badge").textContent = msg; }
+
+async function cargarGastos() {
+  document.getElementById("view-gastos").innerHTML = `<div class="loading">Cargando gastos...</div>`;
+  try {
+    const res = await fetch(`${API_URL}/gastos`);
+    if (!res.ok) throw new Error();
+    gastos = await res.json();
+    renderAll();
+  } catch {
+    showError("No se pudieron cargar los gastos.");
+    document.getElementById("view-gastos").innerHTML = `<div class="loading">Error al conectar</div>`;
+  }
+}
+
+async function persistirGastos() {
+  setSaving("guardando...");
+  try {
+    const res = await fetch(`${API_URL}/gastos`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(gastos),
+    });
+    if (!res.ok) throw new Error();
+    setSaving("");
+  } catch {
+    setSaving("⚠️ error al guardar");
+    showError("No se pudo guardar. Intentá de nuevo.");
+    setTimeout(() => setSaving(""), 4000);
+  }
+}
+
+// ── RENDER ───────────────────────────────────────────────────────
+function renderAll() {
+  renderHeader();
+  renderGastos();
+  renderDeudas();
+  // Re-render cats solo si la pestaña está visible
+  if (document.getElementById("view-cats").style.display !== "none") renderCategorias();
+}
+
+function renderHeader() {
+  const total = gastos.reduce((s, g) => s + g.monto, 0);
+  document.getElementById("total").innerHTML = fmt(total);
+  document.getElementById("count").textContent = gastos.length;
+
+  const porPersona = {};
+  PERSONAS.forEach(p => porPersona[p] = 0);
+  gastos.forEach(g => porPersona[g.pagador] += g.monto);
+
+  document.getElementById("avatares").innerHTML = PERSONAS.map(p => {
+    const t = porPersona[p];
+    return `<div class="avatar-wrap">
+      <div class="avatar ${t > 0 ? 'has-gastos' : ''}" style="background:${COLORES[p]}">${initials(p)}</div>
+      <span class="avatar-name">${p.split(" ")[0]}</span>
+      <span class="avatar-amount" style="color:${COLORES[p]}">${t > 0 ? `€${t.toFixed(0)}<br><span style="color:#666;font-size:0.8em">$${(t*USD_RATE).toFixed(0)}</span>` : ''}</span>
+    </div>`;
+  }).join("");
+}
+
+function renderGastos() {
+  const el = document.getElementById("view-gastos");
+  if (gastos.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🧾</div><p class="empty-title">Aún no hay gastos</p></div>`;
+    return;
+  }
+  el.innerHTML = gastos.map(g => `
+    <div class="gasto-card" onclick="abrirEdicion(${g.id})">
+      <div class="gasto-top">
+        <div style="flex:1">
+          <p class="gasto-desc">${g.descripcion}</p>
+          <div class="gasto-meta">
+            <div class="avatar-mini" style="background:${COLORES[g.pagador]}">${initials(g.pagador)}</div>
+            <span class="gasto-pagador">pagó ${g.pagador.split(" ")[0]}</span>
+            <span class="gasto-fecha">${g.fecha}</span>
+          </div>
+          <div class="gasto-chips">
+            ${g.participantes.map(p => `<span class="chip" style="background:${COLORES[p]}22;color:${COLORES[p]}">${p.split(" ")[0]}</span>`).join("")}
+          </div>
+        </div>
+        <span class="gasto-monto">${fmt(g.monto)}</span>
+      </div>
+      <p class="edit-hint">tocá para editar</p>
+    </div>`).join("");
+}
+
+function calcularDeudas() {
+  const balances = {};
+  PERSONAS.forEach(p => balances[p] = 0);
+  gastos.forEach(({ pagador, monto, participantes }) => {
+    const share = monto / participantes.length;
+    participantes.forEach(p => balances[p] -= share);
+    balances[pagador] += monto;
+  });
+  const deudas = [];
+  const deudores   = PERSONAS.filter(p => balances[p] < -0.01).map(p => ({ name: p, amount: balances[p] }));
+  const acreedores = PERSONAS.filter(p => balances[p] >  0.01).map(p => ({ name: p, amount: balances[p] }));
+  deudores.sort((a,b) => a.amount - b.amount);
+  acreedores.sort((a,b) => b.amount - a.amount);
+  let i = 0, j = 0;
+  while (i < deudores.length && j < acreedores.length) {
+    const d = deudores[i], a = acreedores[j];
+    const amount = Math.min(-d.amount, a.amount);
+    if (amount > 0.01) deudas.push({ de: d.name, a: a.name, monto: amount });
+    d.amount += amount; a.amount -= amount;
+    if (Math.abs(d.amount) < 0.01) i++;
+    if (Math.abs(a.amount) < 0.01) j++;
+  }
+  return deudas;
+}
+
+function renderDeudas() {
+  const el = document.getElementById("view-deudas");
+  const deudas = calcularDeudas();
+  if (deudas.length === 0) {
+    const msg = gastos.length === 0 ? "Agregá gastos para ver quién debe qué" : "¡El grupo está al día!";
+    el.innerHTML = `<div class="empty"><div class="empty-icon">${gastos.length ? '🎉' : '🤝'}</div><p class="empty-title">${msg}</p></div>`;
+    return;
+  }
+  el.innerHTML = `<p class="deudas-hint">Transferencias mínimas para saldar todo</p>` +
+    deudas.map(d => `
+      <div class="deuda-card">
+        <div class="deuda-avatar" style="background:${COLORES[d.de]}">${initials(d.de)}</div>
+        <div class="deuda-info">
+          <p class="deuda-texto"><strong style="color:${COLORES[d.de]}">${d.de}</strong> le debe a <strong style="color:${COLORES[d.a]}">${d.a}</strong></p>
+          <p class="deuda-monto">${fmt(d.monto)}</p>
+        </div>
+        <div class="deuda-avatar" style="background:${COLORES[d.a]}">${initials(d.a)}</div>
+      </div>`).join("");
+}
+
+function renderModalForm() {
+  document.getElementById("f-pagador").innerHTML = PERSONAS.map(p => `<option value="${p}">${p}</option>`).join("");
+  document.getElementById("f-participantes").innerHTML = PERSONAS.map(p => `
+    <div class="part-wrap" onclick="toggleParticipante('${p}')">
+      <div class="part-avatar selected" id="part-avatar-${p.replace(' ','-')}" style="background:${COLORES[p]}">${initials(p)}</div>
+      <span class="part-name selected" id="part-name-${p.replace(' ','-')}">${p.split(" ")[0]}</span>
+    </div>`).join("");
+}
+
+// ── MODAL ────────────────────────────────────────────────────────
+function openModal() {
+  // Nuevo gasto
+  editandoId = null;
+  document.getElementById("modal-title").textContent = "Nuevo gasto";
+  document.getElementById("btn-guardar").textContent = "Agregar gasto";
+  document.getElementById("btn-eliminar").style.display = "none";
+  document.getElementById("f-desc").value = "";
+  document.getElementById("f-monto").value = "";
+  document.getElementById("f-fecha").value = todayISO();
+  document.getElementById("f-pagador").value = PERSONAS[0];
+  participantesSeleccionados = new Set(PERSONAS);
+  PERSONAS.forEach(p => {
+    const key = p.replace(" ","-");
+    document.getElementById(`part-avatar-${key}`)?.classList.add("selected");
+    document.getElementById(`part-name-${key}`)?.classList.add("selected");
+  });
+  updateSplitHint();
+  document.getElementById("modal-bg").classList.add("open");
+  setTimeout(() => document.getElementById("f-desc").focus(), 300);
+}
+
+function abrirEdicion(id) {
+  const g = gastos.find(x => x.id === id);
+  if (!g) return;
+  editandoId = id;
+  document.getElementById("modal-title").textContent = "Editar gasto";
+  document.getElementById("btn-guardar").textContent = "Guardar cambios";
+  document.getElementById("btn-eliminar").style.display = "";
+  document.getElementById("f-desc").value = g.descripcion;
+  document.getElementById("f-monto").value = g.monto;
+  document.getElementById("f-fecha").value = displayToISO(g.fecha);
+  document.getElementById("f-pagador").value = g.pagador;
+  participantesSeleccionados = new Set(g.participantes);
+  PERSONAS.forEach(p => {
+    const key = p.replace(" ","-");
+    const sel = participantesSeleccionados.has(p);
+    document.getElementById(`part-avatar-${key}`)?.classList.toggle("selected", sel);
+    document.getElementById(`part-name-${key}`)?.classList.toggle("selected", sel);
+  });
+  updateSplitHint();
+  document.getElementById("modal-bg").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modal-bg").classList.remove("open");
+}
+
+document.getElementById("modal-bg").addEventListener("click", e => {
+  if (e.target === document.getElementById("modal-bg")) closeModal();
+});
+
+// ── ACCIONES ─────────────────────────────────────────────────────
+function guardarGasto() {
+  const desc  = document.getElementById("f-desc").value.trim();
+  const monto = parseFloat(document.getElementById("f-monto").value);
+  const fecha = document.getElementById("f-fecha").value; // ISO
+  const pagador = document.getElementById("f-pagador").value;
+  if (!desc || !monto || monto <= 0 || participantesSeleccionados.size === 0 || !fecha) return;
+
+  const fechaDisplay = formatFecha(fecha);
+
+  if (editandoId !== null) {
+    // Editar existente
+    const idx = gastos.findIndex(g => g.id === editandoId);
+    if (idx !== -1) {
+      gastos[idx] = { ...gastos[idx], descripcion: desc, monto, fecha: fechaDisplay, pagador, participantes: [...participantesSeleccionados] };
+    }
+  } else {
+    // Nuevo
+    gastos.unshift({ id: Date.now(), descripcion: desc, monto, fecha: fechaDisplay, pagador, participantes: [...participantesSeleccionados] });
+  }
+
+  persistirGastos();
+  renderAll();
+  closeModal();
+}
+
+function eliminarGastoActual() {
+  if (editandoId === null) return;
+  gastos = gastos.filter(g => g.id !== editandoId);
+  persistirGastos();
+  renderAll();
+  closeModal();
+}
+
+function toggleParticipante(nombre) {
+  const key = nombre.replace(" ","-");
+  if (participantesSeleccionados.has(nombre)) {
+    if (participantesSeleccionados.size === 1) return;
+    participantesSeleccionados.delete(nombre);
+    document.getElementById(`part-avatar-${key}`)?.classList.remove("selected");
+    document.getElementById(`part-name-${key}`)?.classList.remove("selected");
+  } else {
+    participantesSeleccionados.add(nombre);
+    document.getElementById(`part-avatar-${key}`)?.classList.add("selected");
+    document.getElementById(`part-name-${key}`)?.classList.add("selected");
+  }
+  updateSplitHint();
+}
+
+function updateSplitHint() {
+  const monto = parseFloat(document.getElementById("f-monto")?.value || 0);
+  const count = participantesSeleccionados.size;
+  document.getElementById("split-hint").textContent =
+    (monto > 0 && count > 0) ? `€${(monto/count).toFixed(2)} · $${((monto/count)*USD_RATE).toFixed(2)} por persona` : "";
+}
+
+document.getElementById("f-monto").addEventListener("input", updateSplitHint);
+
+// ── CATEGORÍAS ───────────────────────────────────────────────────
+const CATEGORIAS = [
+  {
+    id: "comida",
+    nombre: "Comida y bebida",
+    icon: "🍽️",
+    color: "#FF6B6B",
+    bg: "#FF6B6B22",
+    keywords: ["cena","almuerzo","desayuno","comida","restaurant","resto","sushi","pizza","burger","burguer","hamburgesa","helado","helados","sanguche","sangwich","sandwich","cafe","café","bar","tragos","cerveza","cervezas","copa","vino","cocas","sangria","sangría","jugo","jugos","bebida","postre","tapa","tapas","bocadillo","churro","paella","jota","en jota","brunch"]
+  },
+  {
+    id: "transporte",
+    nombre: "Transporte",
+    icon: "🚗",
+    color: "#45B7D1",
+    bg: "#45B7D122",
+    keywords: ["uber","taxi","colect","colectivo","bus","tren","metro","subte","remis","transfer","peaje","combustible","nafta","gasolina","gasoil","estacion de servicio","estación de servicio","bici","scooter","moto","vuelo","avion","avión","aeropuerto","tren","renfe","ave"]
+  },
+  {
+    id: "alojamiento",
+    nombre: "Alojamiento",
+    icon: "🏨",
+    color: "#98D8C8",
+    bg: "#98D8C822",
+    keywords: ["hotel","hostel","airbnb","alojamiento","habitacion","habitación","cuarto","apart","apartamento","hospedar","noche","check","booking"]
+  },
+  {
+    id: "entradas",
+    nombre: "Entradas y turismo",
+    icon: "🎟️",
+    color: "#FFA07A",
+    bg: "#FFA07A22",
+    keywords: ["entrada","entradas","ticket","museo","catedral","iglesia","monumento","tour","visita","excursion","excursión","parque","plaza","toros","plaza de toros","torre","alcazaba","gibraltar","alhambra","sagrada","flamenco","show","espectaculo","espectáculo","zoo","acuario","castillo"]
+  },
+  {
+    id: "compras",
+    nombre: "Compras y mercado",
+    icon: "🛍️",
+    color: "#4ECDC4",
+    bg: "#4ECDC422",
+    keywords: ["super","supermercado","mercado","farmacia","kiosko","tienda","shopping","mall","ropa","zapatos","souvenir","regalo","dia","día","lidl","mercadona","carrefour","compras","ferreteria","ferretería"]
+  },
+  {
+    id: "auto",
+    nombre: "Auto y parking",
+    icon: "🅿️",
+    color: "#7c6fff",
+    bg: "#7c6fff22",
+    keywords: ["estacionamiento","parking","garage","garaje","autopista","peaje","alquiler de auto","rent a car","rental","multa"]
+  },
+  {
+    id: "otros",
+    nombre: "Otros",
+    icon: "📦",
+    color: "#888",
+    bg: "#88888822",
+    keywords: []
+  }
+];
+
+function categorizarGasto(desc) {
+  const d = desc.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  for (const cat of CATEGORIAS) {
+    if (cat.id === "otros") continue;
+    if (cat.keywords.some(kw => d.includes(kw.normalize("NFD").replace(/[\u0300-\u036f]/g, "")))) {
+      return cat.id;
+    }
+  }
+  return "otros";
+}
+
+function renderCategorias() {
+  const el = document.getElementById("view-cats");
+  if (gastos.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📊</div><p class="empty-title">Sin gastos aún</p></div>`;
+    return;
+  }
+
+  const total = gastos.reduce((s, g) => s + g.monto, 0);
+
+  // Agrupar gastos por categoría
+  const porCat = {};
+  CATEGORIAS.forEach(c => porCat[c.id] = []);
+  gastos.forEach(g => {
+    const catId = categorizarGasto(g.descripcion);
+    porCat[catId].push(g);
+  });
+
+  // Ordenar categorías por monto desc, omitir vacías excepto si todas están vacías
+  const catsConDatos = CATEGORIAS
+    .map(cat => ({
+      ...cat,
+      lista: porCat[cat.id],
+      total: porCat[cat.id].reduce((s, g) => s + g.monto, 0)
+    }))
+    .filter(c => c.lista.length > 0)
+    .sort((a, b) => b.total - a.total);
+
+  const maxMonto = catsConDatos[0]?.total || 1;
+
+  el.innerHTML = `
+    <div class="cat-resumen">
+      <div>
+        <p class="cat-resumen-label">Total gastado</p>
+        <p class="cat-resumen-val">€${total.toFixed(2)} <span style="color:#4ECDC4;font-size:0.85em">$${(total*USD_RATE).toFixed(2)}</span></p>
+      </div>
+      <div style="text-align:right">
+        <p class="cat-resumen-label">Categorías</p>
+        <p class="cat-resumen-val" style="color:#7c6fff">${catsConDatos.length}</p>
+      </div>
+    </div>
+    ${catsConDatos.map(cat => `
+      <div class="cat-card" id="cat-${cat.id}" onclick="toggleCat('${cat.id}')">
+        <div class="cat-header">
+          <div class="cat-icon" style="background:${cat.bg}">${cat.icon}</div>
+          <div class="cat-info">
+            <p class="cat-nombre">${cat.nombre}</p>
+            <p class="cat-count">${cat.lista.length} gasto${cat.lista.length !== 1 ? 's' : ''}</p>
+          </div>
+          <div class="cat-right">
+            <p class="cat-monto" style="color:${cat.color}">€${cat.total.toFixed(2)}</p>
+            <p class="cat-pct">$${(cat.total*USD_RATE).toFixed(2)} · ${((cat.total / total) * 100).toFixed(0)}% del total</p>
+          </div>
+        </div>
+        <div class="cat-bar-wrap">
+          <div class="cat-bar" style="width:${(cat.total / maxMonto * 100).toFixed(1)}%;background:${cat.color}"></div>
+        </div>
+        <div class="cat-gastos">
+          ${cat.lista.map(g => `
+            <div class="cat-gasto-row" onclick="event.stopPropagation(); abrirEdicion(${g.id})">
+              <div style="flex:1">
+                <p class="cat-gasto-desc">${g.descripcion}</p>
+                <p class="cat-gasto-meta">${g.pagador.split(" ")[0]} · ${g.fecha}</p>
+              </div>
+              <p class="cat-gasto-monto">€${g.monto.toFixed(2)} <span style="color:#666;font-size:0.85em">$${(g.monto*USD_RATE).toFixed(2)}</span></p>
+            </div>`).join("")}
+        </div>
+      </div>`).join("")}`;
+}
+
+function toggleCat(id) {
+  document.getElementById(`cat-${id}`)?.classList.toggle("open");
+}
+
+// ── TABS ─────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById("view-gastos").style.display = tab === "gastos" ? "" : "none";
+  document.getElementById("view-deudas").style.display = tab === "deudas" ? "" : "none";
+  document.getElementById("view-cats").style.display   = tab === "cats"   ? "" : "none";
+  document.getElementById("tab-gastos").classList.toggle("active", tab === "gastos");
+  document.getElementById("tab-deudas").classList.toggle("active", tab === "deudas");
+  document.getElementById("tab-cats").classList.toggle("active",   tab === "cats");
+  if (tab === "cats") renderCategorias();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+checkLogin();
+</script>
+</body>
+</html>

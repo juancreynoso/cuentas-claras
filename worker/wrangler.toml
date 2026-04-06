@@ -1,0 +1,7 @@
+name = "cuentas-claras-api"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "GASTOS_KV"
+id = "c89e0116ffd34ae59d7a5cc8d8d61a98"
