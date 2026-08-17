@@ -98,6 +98,26 @@ echo "── grupo inexistente ──"
 NF=$(curl -s -X POST $API/groups/ZZZZZZ/session -H 'Content-Type: application/json' -d '{}')
 check "devuelve group_not_found" "$([ "$(echo "$NF" | j 'o.code')" = "group_not_found" ] && echo 1 || echo 0)"
 
+echo "── borrar grupo completo ──"
+D=$(curl -s -X POST $API/groups -H 'Content-Type: application/json' \
+  -d '{"name":"Descartable","currency":"EUR","memberNames":["Ana","Beto"]}')
+DCODE=$(echo "$D" | j 'o.group.code')
+DTOK=$(echo "$D" | j 'o.token')
+DM1=$(echo "$D" | j 'o.snapshot.members[0].id')
+DM2=$(echo "$D" | j 'o.snapshot.members[1].id')
+curl -s -X POST $API/groups/$DCODE/expenses -H "Authorization: Bearer $DTOK" \
+  -H 'Content-Type: application/json' \
+  -d "{\"description\":\"Cena\",\"amountCents\":5000,\"spentOn\":\"2026-08-01\",\"payerId\":\"$DM1\",\"participantIds\":[\"$DM1\",\"$DM2\"]}" > /dev/null
+
+DELNOAUTH=$(curl -s -o /dev/null -w '%{http_code}' -X DELETE $API/groups/$DCODE)
+check "no se puede borrar sin token" "$([ "$DELNOAUTH" = "401" ] && echo 1 || echo 0)"
+
+DEL=$(curl -s -o /dev/null -w '%{http_code}' -X DELETE $API/groups/$DCODE -H "Authorization: Bearer $DTOK")
+check "borra un grupo que tiene gastos" "$([ "$DEL" = "200" ] && echo 1 || echo 0)"
+
+GONE=$(curl -s -X POST $API/groups/$DCODE/session -H 'Content-Type: application/json' -d '{}' | j 'o.code')
+check "el grupo borrado ya no existe" "$([ "$GONE" = "group_not_found" ] && echo 1 || echo 0)"
+
 echo "── SPA ──"
 ROOT=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/)
 DEEP=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8787/g/ABC123)

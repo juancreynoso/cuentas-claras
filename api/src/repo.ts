@@ -175,6 +175,30 @@ export class Repo {
     await this.db.prepare('DELETE FROM groups WHERE id = ?').bind(groupId).run();
   }
 
+  /**
+   * Borra los grupos sin actividad desde `cutoff` (ms epoch). Devuelve cuántos.
+   *
+   * Se apoya en el mismo CASCADE que `deleteGroup`, así que no deja integrantes
+   * ni gastos huérfanos. `updated_at` lo refresca `touchGroup` en cada
+   * escritura, con lo cual mide actividad real y no antigüedad del grupo.
+   */
+  async purgeGroupsInactiveSince(cutoff: number): Promise<number> {
+    // Contamos antes de borrar en lugar de usar `meta.changes`: D1 incluye ahí
+    // las filas eliminadas en cascada, así que un grupo con dos integrantes
+    // reporta 3 y el número del log no significaría nada. De paso, evita
+    // ejecutar el DELETE cuando no hay nada que limpiar.
+    const doomed = await this.db
+      .prepare('SELECT COUNT(*) AS n FROM groups WHERE updated_at < ?')
+      .bind(cutoff)
+      .first<{ n: number }>();
+
+    const count = doomed?.n ?? 0;
+    if (count === 0) return 0;
+
+    await this.db.prepare('DELETE FROM groups WHERE updated_at < ?').bind(cutoff).run();
+    return count;
+  }
+
   // ── Snapshot completo ──────────────────────────────────────────────────────
 
   async getSnapshot(row: GroupRow): Promise<GroupSnapshot> {

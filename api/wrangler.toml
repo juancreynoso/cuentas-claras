@@ -20,6 +20,11 @@ database_id = "873f85fb-d22c-4946-8207-2423be91120f"
 [observability]
 enabled = true
 
+# Limpieza semanal de grupos abandonados (domingos 03:00 UTC). Ver el handler
+# `scheduled` en src/index.ts y la sección "Retención de datos" del README.
+[triggers]
+crons = ["0 3 * * 0"]
+
 # SESSION_SECRET es un secreto, NO una var. Configurarlo con:
 #   wrangler secret put SESSION_SECRET
 # En local va en api/.dev.vars (ignorado por git).

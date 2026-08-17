@@ -36,6 +36,14 @@ interface Env {
   SESSION_SECRET?: string;
 }
 
+/**
+ * Un año sin ninguna escritura. Un viaje se salda en semanas, así que doce
+ * meses sin tocar el grupo es señal inequívoca de abandono; el margen es
+ * amplio a propósito, porque borrar el viaje de alguien que vuelve es mucho
+ * peor que guardar unos kilobytes de más.
+ */
+const ABANDONED_AFTER_MS = 365 * 24 * 60 * 60 * 1000;
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -52,7 +60,31 @@ export default {
       return errorResponse(err);
     }
   },
+
+  /**
+   * Cron semanal: borra los grupos abandonados.
+   *
+   * Va en `waitUntil` para que la tarea complete aunque el handler retorne, y
+   * el error se traga a propósito: si una corrida falla, la siguiente lo
+   * vuelve a intentar. Nada depende de que esto ocurra a tiempo.
+   */
+  scheduled(_controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+    // Sin `await`: `waitUntil` ya mantiene viva la tarea después de retornar.
+    ctx.waitUntil(purgeAbandonedGroups(env));
+  },
 } satisfies ExportedHandler<Env>;
+
+async function purgeAbandonedGroups(env: Env): Promise<void> {
+  try {
+    const cutoff = Date.now() - ABANDONED_AFTER_MS;
+    const deleted = await new Repo(env.DB).purgeGroupsInactiveSince(cutoff);
+    console.log(
+      `Limpieza: ${deleted} grupo(s) sin actividad desde ${new Date(cutoff).toISOString()}`,
+    );
+  } catch (err) {
+    console.error('Falló la limpieza de grupos abandonados:', err);
+  }
+}
 
 /** El secreto de sesión no tiene default: sin él, la firma no vale nada. */
 function requireSecret(env: Env): string {

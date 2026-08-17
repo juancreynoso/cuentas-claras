@@ -7,7 +7,7 @@
  */
 
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Expense } from '@shared/types';
 import { computeBalances, settle, totalCents as sumExpenses } from '@shared/settlement';
 import { useGroup } from '../hooks/useGroup';
@@ -26,6 +26,7 @@ import { ShareSheet } from './ShareSheet';
 type Tab = 'gastos' | 'saldos' | 'resumen';
 
 export function GroupPage({ code }: { code: string }) {
+  const navigate = useNavigate();
   const group = useGroup(code);
   const [tab, setTab] = useState<Tab>('gastos');
   const [expenseSheet, setExpenseSheet] = useState<{
@@ -207,6 +208,12 @@ export function GroupPage({ code }: { code: string }) {
         onAddMember={group.addMember}
         onRenameMember={group.renameMember}
         onRemoveMember={group.removeMember}
+        onDeleteGroup={async () => {
+          // Al borrarlo no queda grupo que mostrar: volvemos a la portada.
+          const ok = await group.deleteGroup();
+          if (ok) void navigate('/');
+          return ok;
+        }}
       />
 
       <ShareSheet open={shareOpen} group={snapshot.group} onClose={() => setShareOpen(false)} />

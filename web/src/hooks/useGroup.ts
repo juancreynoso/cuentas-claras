@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ExpenseInput, GroupSnapshot, UpdateGroupInput } from '@shared/types';
 import { ApiClientError, api } from '../lib/api';
-import { clearToken, getToken, rememberGroup } from '../lib/session';
+import { clearToken, forgetGroup, getToken, rememberGroup } from '../lib/session';
 
 export type GroupStatus =
   | 'loading'
@@ -40,6 +40,8 @@ export interface UseGroupResult {
   renameMember: (id: string, name: string) => Promise<boolean>;
   removeMember: (id: string) => Promise<boolean>;
   updateSettings: (patch: UpdateGroupInput) => Promise<boolean>;
+  /** Borra el grupo entero. No relee nada: después de esto no hay grupo. */
+  deleteGroup: () => Promise<boolean>;
 }
 
 export function useGroup(code: string): UseGroupResult {
@@ -223,6 +225,26 @@ export function useGroup(code: string): UseGroupResult {
     [mutate],
   );
 
+  /**
+   * Borra el grupo. A diferencia del resto de las mutaciones no relee el
+   * snapshot —no habría qué leer— y además lo saca de la lista local, para
+   * que no quede un atajo en la portada apuntando a un grupo inexistente.
+   */
+  const deleteGroup = useCallback(async (): Promise<boolean> => {
+    setSaving(true);
+    setError(null);
+    try {
+      await api.deleteGroup(activeCode.current);
+      forgetGroup(activeCode.current);
+      return true;
+    } catch (err) {
+      handleError(err);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }, [handleError]);
+
   const dismissError = useCallback(() => setError(null), []);
 
   return {
@@ -241,5 +263,6 @@ export function useGroup(code: string): UseGroupResult {
     renameMember,
     removeMember,
     updateSettings,
+    deleteGroup,
   };
 }

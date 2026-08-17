@@ -28,6 +28,7 @@ interface Props {
   onAddMember: (name: string) => Promise<boolean>;
   onRenameMember: (id: string, name: string) => Promise<boolean>;
   onRemoveMember: (id: string) => Promise<boolean>;
+  onDeleteGroup: () => Promise<boolean>;
 }
 
 export function SettingsSheet({ open, session, ...rest }: Props) {
@@ -48,6 +49,7 @@ function SettingsForm({
   onAddMember,
   onRenameMember,
   onRemoveMember,
+  onDeleteGroup,
 }: FormProps) {
   const [name, setName] = useState(group.name);
   const [currency, setCurrency] = useState(group.currency);
@@ -56,6 +58,8 @@ function SettingsForm({
   const [newMember, setNewMember] = useState('');
   const [editingMember, setEditingMember] = useState<string | null>(null);
   const [editedName, setEditedName] = useState('');
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [typedCode, setTypedCode] = useState('');
 
   const rateNumber = Number(rate.replace(',', '.'));
   const rateValid = !secondary || (Number.isFinite(rateNumber) && rateNumber > 0);
@@ -245,6 +249,61 @@ function SettingsForm({
         No se puede eliminar a alguien que pagó gastos: primero hay que editar o borrar esos gastos.
         Así los saldos nunca quedan descuadrados.
       </p>
+
+      {/* Borrar el grupo afecta a todos los integrantes y no se puede deshacer,
+          así que exige tipear el código: un toque accidental no alcanza. */}
+      <div className="mt-8 rounded-lg border border-danger-border bg-danger-surface p-3.5">
+        <h3 className="text-[13px] font-medium text-danger">Eliminar grupo</h3>
+        <p className="mt-1 text-[12px] leading-relaxed text-ink-soft">
+          Se borran los gastos, los integrantes y el historial completo. Nadie va a poder volver a
+          entrar con este código. No se puede deshacer.
+        </p>
+
+        {!confirmingDelete ? (
+          <Button
+            variant="danger"
+            onClick={() => setConfirmingDelete(true)}
+            className="mt-3 w-full bg-canvas"
+          >
+            Eliminar grupo
+          </Button>
+        ) : (
+          <div className="mt-3">
+            <label htmlFor="confirm-delete-code" className="mb-1.5 block text-[12px] text-ink-soft">
+              Escribí <span className="font-mono font-bold">{group.code}</span> para confirmar
+            </label>
+            <Input
+              id="confirm-delete-code"
+              value={typedCode}
+              onChange={(e) => setTypedCode(e.target.value.toUpperCase())}
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              className="mb-2.5 text-center font-mono tracking-[0.2em]"
+            />
+            <div className="flex gap-2.5">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setConfirmingDelete(false);
+                  setTypedCode('');
+                }}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => void onDeleteGroup()}
+                disabled={typedCode !== group.code || saving}
+                className="flex-1 bg-canvas"
+              >
+                {saving ? 'Eliminando...' : 'Eliminar'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
     </>
   );
 }

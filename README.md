@@ -176,6 +176,15 @@ Cosas que faltan:
 
 ---
 
+## Retención de datos
+
+Dos mecanismos evitan que la base crezca sin control y que queden datos personales guardados para siempre:
+
+- **Borrado manual.** Desde Ajustes se puede eliminar un grupo entero.
+- **Limpieza automática.** Un trigger semanal borra los grupos sin ninguna escritura en **12 meses**.
+
+---
+
 ## Stack
 
 React 19 · TypeScript · Vite 8 · Tailwind 4 · Cloudflare Workers · D1 (SQLite) · Vitest · ESLint · GitHub Actions
