@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Permite correr la verificación a mano desde la pestaña Actions.
+  workflow_dispatch:
 
 # Cancela corridas viejas de la misma rama: sólo interesa la última.
 concurrency:
