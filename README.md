@@ -16,10 +16,8 @@
 
 ## Capturas
 
-
-
-| Gastos | Quién debe | Stats |
-|---|---|---|
+| Gastos                                          | Quién debe                                              | Stats                                              |
+| ----------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
 | ![Lista de gastos](docs/screenshots/gastos.png) | ![Saldos y transferencias](docs/screenshots/saldos.png) | ![Gasto por categoría](docs/screenshots/stats.png) |
 
 ---
@@ -42,8 +40,8 @@ Esto surgió **durante un viaje de amigos**, donde a los cinco días de repartir
 
 El flujo completo son tres pasos:
 
-| 1. Crear el grupo                              | 2. Cargar un gasto                            | 3. Compartir el código                       |
-| ---------------------------------------------- | --------------------------------------------- | -------------------------------------------- |
+| 1. Crear el grupo                                | 2. Cargar un gasto                               | 3. Compartir el código                       |
+| ------------------------------------------------ | ------------------------------------------------ | -------------------------------------------- |
 | ![Crear grupo](docs/screenshots/crear-grupo.png) | ![Nuevo gasto](docs/screenshots/nuevo-gasto.png) | ![Compartir](docs/screenshots/compartir.png) |
 
 ---
