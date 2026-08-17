@@ -1,0 +1,116 @@
+@import 'tailwindcss';
+
+/**
+ * Tokens de diseño.
+ *
+ * Conservan la identidad de la versión original —fondo casi negro azulado,
+ * violeta de acento, verde agua para el dinero, Sora + Space Mono— pero ahora
+ * viven como variables de tema de Tailwind v4, así que se usan como utilidades
+ * (`bg-ink`, `text-accent`) en lugar de hexadecimales repetidos en el markup.
+ */
+@theme {
+  --color-ink: #0f0f1a;
+  --color-ink-raised: #13131f;
+  --color-surface: #1a1a2e;
+  --color-surface-hover: #20203a;
+  --color-border: #2a2a3e;
+  --color-border-soft: #1e1e2e;
+
+  --color-accent: #7c6fff;
+  --color-accent-strong: #5c4fff;
+  --color-money: #4ecdc4;
+  --color-danger: #ff6b6b;
+
+  --color-muted: #6b6b85;
+  --color-muted-dim: #4a4a60;
+
+  --font-sans: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+
+  --radius-card: 1rem;
+  --radius-sheet: 1.5rem;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-ink);
+    /* Evita que iOS agrande el texto al rotar el teléfono. */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--color-ink);
+    color: white;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Respeta a quien pidió menos animación en su sistema. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Foco visible y consistente: es la única pista de navegación por teclado. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+  }
+
+  /* El date picker nativo viene oscuro por defecto; lo aclaramos para que se vea. */
+  input[type='date']::-webkit-calendar-picker-indicator {
+    filter: invert(0.6);
+    cursor: pointer;
+  }
+
+  /* Saca las flechitas de los inputs numéricos, que en mobile estorban. */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+}
+
+@utility animate-rise {
+  animation: rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-fade {
+  animation: fade 0.2s ease;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0f0f1a" />
+  <!-- Balanza: la idea del proyecto es equilibrar lo que cada uno puso. -->
+  <g stroke="#7c6fff" stroke-width="4" stroke-linecap="round" fill="none">
+    <path d="M32 14v34" />
+    <path d="M14 24h36" />
+  </g>
+  <path d="M14 24 8 38h12z" fill="#4ecdc4" />
+  <path d="M50 24 44 38h12z" fill="#4ecdc4" />
+  <circle cx="32" cy="12" r="4" fill="#7c6fff" />
+</svg>

@@ -1,0 +1,14 @@
+dist/
+node_modules/
+.wrangler/
+coverage/
+package-lock.json
+api/worker-configuration.d.ts
+
+# Las listas de keywords y colores están alineadas a mano en varias columnas
+# para que se lean como tablas; Prettier las pondría una por línea.
+shared/categories.ts
+shared/colors.ts
+
+# Versión original preservada como referencia histórica.
+docs/legacy/

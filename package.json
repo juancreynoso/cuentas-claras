@@ -1,0 +1,39 @@
+{
+  "name": "cuentas-claras",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Divide gastos de viaje en grupo sin registro: creás un grupo, compartís el código y la app calcula las transferencias mínimas para saldar todo.",
+  "type": "module",
+  "workspaces": [
+    "web",
+    "api"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev --workspace=api",
+    "dev:web": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=web",
+    "test": "npm run test --workspace=web",
+    "test:watch": "npm run test:watch --workspace=web",
+    "typecheck": "npm run typecheck --workspace=web && npm run typecheck --workspace=api",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:init": "npm run db:init --workspace=api",
+    "db:init:remote": "npm run db:init:remote --workspace=api",
+    "deploy": "npm run build && npm run deploy --workspace=api",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.8.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.11.0",
+    "prettier": "^3.9.6",
+    "typescript-eslint": "^8.67.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  // Cubre el código de `shared/`, que es importado tanto por `web/` como por
+  // `api/` y por lo tanto no pertenece a ninguno de los dos. Sin este archivo,
+  // el project service de typescript-eslint no encuentra a qué proyecto
+  // pertenecen esos módulos y no puede lintearlos con información de tipos.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["vitest/globals"],
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true
+  },
+  "include": ["shared/**/*.ts"]
+}

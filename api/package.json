@@ -1,0 +1,19 @@
+{
+  "name": "@cuentas-claras/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "db:create": "wrangler d1 create cuentas-claras-db",
+    "db:init": "wrangler d1 execute cuentas-claras-db --local --file=./schema.sql",
+    "db:init:remote": "wrangler d1 execute cuentas-claras-db --remote --file=./schema.sql",
+    "db:console": "wrangler d1 execute cuentas-claras-db --local --command"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "wrangler": "^4.123.0"
+  }
+}

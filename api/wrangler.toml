@@ -1,0 +1,29 @@
+name = "cuentas-claras"
+main = "src/index.ts"
+compatibility_date = "2026-08-01"
+workers_dev = true
+
+# Un solo Worker sirve el SPA y la API. Same-origin: sin CORS, sin preflight,
+# un solo deploy y un solo dominio.
+[assets]
+directory = "../web/dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+# Las rutas /api/* las maneja el Worker; el resto lo resuelven los assets.
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cuentas-claras-db"
+database_id = "PLACEHOLDER_CORRER_npm_run_db:create"
+
+[observability]
+enabled = true
+
+[vars]
+# Origen público, usado sólo para armar los links que se comparten.
+PUBLIC_ORIGIN = ""
+
+# SESSION_SECRET es un secreto, NO una var. Configurarlo con:
+#   wrangler secret put SESSION_SECRET
+# En local va en api/.dev.vars (ignorado por git).

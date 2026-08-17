@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancela corridas viejas de la misma rama: sólo interesa la última.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Formato, lint, tipos, tests y build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          # LTS par: Node 23 es impar y varias dependencias declaran
+          # engines ^20.19 || ^22.12 || >=24, así que ahí avisan por engine.
+          node-version: 22
+          cache: npm
+
+      # `npm ci` respeta el lockfile y no necesita legacy-peer-deps.
+      - run: npm ci
+
+      - name: Formato
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tipos
+        run: npm run typecheck
+
+      - name: Tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      # Verifica que el Worker se empaqueta bien, sin desplegar nada.
+      - name: Bundle del Worker
+        run: npx wrangler deploy --dry-run --outdir=/tmp/worker-bundle
+        working-directory: api
