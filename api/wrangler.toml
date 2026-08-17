@@ -20,10 +20,6 @@ database_id = "PLACEHOLDER_CORRER_npm_run_db:create"
 [observability]
 enabled = true
 
-[vars]
-# Origen público, usado sólo para armar los links que se comparten.
-PUBLIC_ORIGIN = ""
-
 # SESSION_SECRET es un secreto, NO una var. Configurarlo con:
 #   wrangler secret put SESSION_SECRET
 # En local va en api/.dev.vars (ignorado por git).
