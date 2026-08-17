@@ -2,9 +2,34 @@
 
 **Dividí los gastos de un viaje en grupo y descubrí quién le debe a quién, con las mínimas transferencias posibles.** Sin registro, sin emails: creás un grupo, compartís el código y todos cargan gastos desde su teléfono.
 
-<!-- Reemplazar por la URL propia después del primer deploy. -->
+<!--
+  Después del primer `npm run deploy`, wrangler imprime la URL real
+  (algo como https://cuentas-claras.<tu-subdominio>.workers.dev).
+  Reemplazá la línea de abajo por:
 
-🔗 **[Ver la app en vivo](https://cuentas-claras.workers.dev)** · [Reportar algo](https://github.com/juancreynoso/cuentas-claras/issues)
+  🔗 **[Ver la app en vivo](URL_REAL)** · [Reportar algo](https://github.com/juancreynoso/cuentas-claras/issues)
+-->
+
+![CI](https://github.com/juancreynoso/cuentas-claras/actions/workflows/ci.yml/badge.svg)
+
+---
+
+## Capturas
+
+<!--
+  Pendiente: correr `npm run dev`, sacar tres capturas en vista de teléfono
+  (390×844 en el modo responsive del navegador) y guardarlas acá:
+
+    docs/screenshots/gastos.png    la lista de gastos, con varios cargados
+    docs/screenshots/saldos.png    la pestaña "Quién debe"
+    docs/screenshots/stats.png     el desglose por categoría
+
+  Después descomentar el bloque de abajo.
+
+| Gastos | Quién debe | Stats |
+|---|---|---|
+| ![Lista de gastos](docs/screenshots/gastos.png) | ![Saldos y transferencias](docs/screenshots/saldos.png) | ![Gasto por categoría](docs/screenshots/stats.png) |
+-->
 
 ---
 
