@@ -1,9 +1,9 @@
 /**
  * Quién le debe a quién.
  *
- * Muestra dos cosas distintas y complementarias: el saldo neto de cada persona
- * (cuánto puso vs. cuánto le tocaba) y la lista concreta de transferencias que
- * salda todo. La segunda es la que se ejecuta; la primera explica por qué.
+ * Muestra dos cosas distintas y complementarias: la lista concreta de
+ * transferencias que salda todo, y el saldo neto de cada persona. La primera
+ * es la que se ejecuta; la segunda explica por qué.
  */
 
 import type { Balance, Transfer } from '@shared/settlement';
@@ -11,6 +11,7 @@ import type { Member } from '@shared/types';
 import { firstName } from '@shared/colors';
 import type { MoneyFormatter } from '../lib/display';
 import { Avatar, EmptyState } from './ui';
+import { IconArrowRight } from './icons';
 
 interface Props {
   balances: Balance[];
@@ -26,7 +27,6 @@ export function BalancesTab({ balances, transfers, members, money, hasExpenses }
   if (!hasExpenses) {
     return (
       <EmptyState
-        icon="🤝"
         title="Sin gastos que saldar"
         description="Cargá algunos gastos y acá va a aparecer quién le debe a quién."
       />
@@ -34,23 +34,17 @@ export function BalancesTab({ balances, transfers, members, money, hasExpenses }
   }
 
   if (transfers.length === 0) {
-    return (
-      <EmptyState
-        icon="🎉"
-        title="¡El grupo está al día!"
-        description="Nadie le debe nada a nadie."
-      />
-    );
+    return <EmptyState title="El grupo está al día" description="Nadie le debe nada a nadie." />;
   }
 
   return (
     <div>
-      <p className="mb-4 text-center text-xs text-muted-dim">
+      <h3 className="mb-1.5 px-0.5 text-[13px] font-medium text-ink-soft">
         {transfers.length} {transfers.length === 1 ? 'transferencia' : 'transferencias'} para saldar
         todo
-      </p>
+      </h3>
 
-      <ul className="mb-8 space-y-2">
+      <ul className="mb-8 divide-y divide-border overflow-hidden rounded-lg border border-border">
         {transfers.map((transfer, index) => {
           const from = byId.get(transfer.fromId);
           const to = byId.get(transfer.toId);
@@ -59,16 +53,17 @@ export function BalancesTab({ balances, transfers, members, money, hasExpenses }
           return (
             <li
               key={`${transfer.fromId}-${transfer.toId}-${index}`}
-              className="animate-rise flex items-center gap-3 rounded-card border border-border bg-surface p-4"
+              className="animate-rise flex items-center gap-3 bg-canvas px-3.5 py-3.5"
             >
-              <Avatar name={from.name} color={from.color} size="lg" />
+              <Avatar name={from.name} color={from.color} size="md" />
+              <IconArrowRight size={16} className="shrink-0 text-faint" />
+              <Avatar name={to.name} color={to.color} size="md" />
+
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-muted">
-                  <strong style={{ color: from.color }}>{firstName(from.name)}</strong> le paga a{' '}
-                  <strong style={{ color: to.color }}>{firstName(to.name)}</strong>
-                </p>
-                <p className="font-mono text-lg font-bold text-danger">
-                  {money.primary(transfer.amountCents)}
+                <p className="truncate text-[13px]">
+                  <span className="font-medium">{firstName(from.name)}</span>
+                  <span className="text-muted"> le paga a </span>
+                  <span className="font-medium">{firstName(to.name)}</span>
                 </p>
                 {money.hasSecondary && (
                   <p className="font-mono text-[11px] text-muted">
@@ -76,16 +71,17 @@ export function BalancesTab({ balances, transfers, members, money, hasExpenses }
                   </p>
                 )}
               </div>
-              <Avatar name={to.name} color={to.color} size="lg" />
+
+              <span className="shrink-0 font-mono text-[15px] font-bold whitespace-nowrap">
+                {money.primary(transfer.amountCents)}
+              </span>
             </li>
           );
         })}
       </ul>
 
-      <h3 className="mb-3 text-[11px] font-semibold tracking-[0.1em] text-muted uppercase">
-        Saldo de cada uno
-      </h3>
-      <ul className="space-y-1.5">
+      <h3 className="mb-1.5 px-0.5 text-[13px] font-medium text-ink-soft">Saldo de cada uno</h3>
+      <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
         {[...balances]
           .sort((a, b) => b.netCents - a.netCents)
           .map((balance) => {
@@ -93,28 +89,32 @@ export function BalancesTab({ balances, transfers, members, money, hasExpenses }
             if (!member) return null;
 
             const net = balance.netCents;
+            // El color no es el único portador: la etiqueta dice qué pasa.
             const label = net > 0 ? 'le deben' : net < 0 ? 'debe' : 'al día';
-            const color = net > 0 ? 'text-money' : net < 0 ? 'text-danger' : 'text-muted';
 
             return (
               <li
                 key={balance.memberId}
-                className="flex items-center gap-3 rounded-xl bg-surface/50 px-3 py-2.5"
+                className="flex items-center gap-2.5 bg-canvas px-3.5 py-3"
               >
                 <Avatar name={member.name} color={member.color} size="sm" />
-                <span className="min-w-0 flex-1 truncate text-[13px]">{member.name}</span>
-                <span className="text-right">
-                  <span className="mr-2 text-[11px] text-muted">{label}</span>
-                  <span className={`font-mono text-[13px] font-bold ${color}`}>
-                    {money.primary(Math.abs(net))}
-                  </span>
+                <span className="min-w-0 flex-1 truncate text-[13px] font-medium">
+                  {member.name}
+                </span>
+                <span className="text-xs text-muted">{label}</span>
+                <span
+                  className={`w-24 text-right font-mono text-[13px] font-bold ${
+                    net < 0 ? 'text-danger' : net > 0 ? 'text-ink' : 'text-faint'
+                  }`}
+                >
+                  {net === 0 ? '—' : money.primary(Math.abs(net))}
                 </span>
               </li>
             );
           })}
       </ul>
 
-      <p className="mt-5 px-2 text-center text-[11px] leading-relaxed text-muted-dim">
+      <p className="mt-4 px-1 text-[12px] leading-relaxed text-muted">
         El saldo es lo que cada uno puso menos lo que le tocaba pagar según su participación en cada
         gasto.
       </p>

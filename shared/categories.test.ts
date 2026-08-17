@@ -75,13 +75,12 @@ describe('getCategory', () => {
     expect(getCategory('no-existe').id).toBe('otros');
   });
 
-  it('todas las categorías tienen id, nombre, icono y color únicos', () => {
+  it('todas las categorías tienen id único, nombre e icono', () => {
     const ids = CATEGORIES.map((c) => c.id);
     expect(new Set(ids).size).toBe(ids.length);
     for (const category of CATEGORIES) {
       expect(category.name).toBeTruthy();
       expect(category.icon).toBeTruthy();
-      expect(category.color).toMatch(/^#[0-9a-fA-F]{6}$/);
     }
   });
 

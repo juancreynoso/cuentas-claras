@@ -1,53 +1,63 @@
 @import 'tailwindcss';
 
 /**
- * Tokens de diseño.
+ * Tokens de diseño — tema claro, casi monocromo.
  *
- * Conservan la identidad de la versión original —fondo casi negro azulado,
- * violeta de acento, verde agua para el dinero, Sora + Space Mono— pero ahora
- * viven como variables de tema de Tailwind v4, así que se usan como utilidades
- * (`bg-ink`, `text-accent`) en lugar de hexadecimales repetidos en el markup.
+ * La jerarquía la dan el tamaño, el peso tipográfico y el espacio; no el color.
+ * La interfaz es blanca, gris y negra: el único color que aparece es el de los
+ * avatares de cada integrante, que ahí sí cumple una función (identificar a una
+ * persona de un vistazo) y el rojo de las deudas.
+ *
+ * Los nombres son semánticos, no descriptivos: `surface` en lugar de `gris-claro`.
+ * Si mañana vuelve un tema oscuro, sólo cambian los valores.
  */
 @theme {
-  --color-ink: #0f0f1a;
-  --color-ink-raised: #13131f;
-  --color-surface: #1a1a2e;
-  --color-surface-hover: #20203a;
-  --color-border: #2a2a3e;
-  --color-border-soft: #1e1e2e;
+  /* Superficies, de atrás hacia adelante */
+  --color-canvas: #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-hover: #f4f4f5;
 
-  --color-accent: #7c6fff;
-  --color-accent-strong: #5c4fff;
-  --color-money: #4ecdc4;
-  --color-danger: #ff6b6b;
+  --color-border: #e7e7e9;
+  --color-border-strong: #d4d4d8;
 
-  --color-muted: #6b6b85;
-  --color-muted-dim: #4a4a60;
+  /* Texto y acciones. `ink` es a la vez el texto principal y el fondo de los
+     botones primarios: en un diseño monocromo son el mismo tono. */
+  --color-ink: #18181b;
+  --color-ink-soft: #3f3f46;
+  --color-muted: #71717a;
+  /* `faint` se usa en placeholders, flechas y chevrons. El gris más claro de
+     la escala (#a1a1aa) daba 2.56:1 sobre blanco, por debajo del 3:1 que WCAG
+     pide para elementos de interfaz no textuales; este llega a 3.17:1 sobre
+     blanco y 3.04:1 sobre la superficie gris. */
+  --color-faint: #909098;
+
+  /* Único color de estado: lo que alguien debe. */
+  --color-danger: #b91c1c;
+  --color-danger-surface: #fef2f2;
+  --color-danger-border: #fecaca;
 
   --font-sans: 'Sora', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Space Mono', ui-monospace, monospace;
 
-  --radius-card: 1rem;
-  --radius-sheet: 1.5rem;
+  --radius-card: 0.75rem;
+  --radius-sheet: 1rem;
 }
 
 @layer base {
   html {
-    background-color: var(--color-ink);
-    /* Evita que iOS agrande el texto al rotar el teléfono. */
+    background-color: var(--color-canvas);
     -webkit-text-size-adjust: 100%;
   }
 
   body {
     margin: 0;
     min-height: 100dvh;
-    background-color: var(--color-ink);
-    color: white;
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Respeta a quien pidió menos animación en su sistema. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -58,43 +68,50 @@
     }
   }
 
-  /* Foco visible y consistente: es la única pista de navegación por teclado. */
+  /* Foco visible: sobre fondo claro, el anillo va en el tono del texto. */
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-ink);
     outline-offset: 2px;
   }
 
   ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 2px;
+    background: var(--color-border-strong);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
   }
 
-  /* El date picker nativo viene oscuro por defecto; lo aclaramos para que se vea. */
   input[type='date']::-webkit-calendar-picker-indicator {
-    filter: invert(0.6);
     cursor: pointer;
+    opacity: 0.5;
   }
 
-  /* Saca las flechitas de los inputs numéricos, que en mobile estorban. */
   input[type='number']::-webkit-inner-spin-button,
   input[type='number']::-webkit-outer-spin-button {
     appearance: none;
     margin: 0;
   }
+
+  /* Los números tabulares evitan que las columnas de montos bailen al cambiar
+     de dígito, que es lo que pasa con cifras proporcionales en una lista. */
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 @utility animate-rise {
-  animation: rise 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: rise 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -103,7 +120,7 @@
 }
 
 @utility animate-fade {
-  animation: fade 0.2s ease;
+  animation: fade 0.18s ease;
 }
 
 @keyframes fade {

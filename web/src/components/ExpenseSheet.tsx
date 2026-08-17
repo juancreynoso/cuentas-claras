@@ -178,53 +178,65 @@ function ExpenseForm({ editing, group, members, saving, onClose, onSave, onDelet
       {/* El <legend> tiene que ser el primer hijo del <fieldset> para ser su
           título accesible; el botón va posicionado, no envuelto junto a él. */}
       <fieldset className="relative mb-4">
-        <legend className="mb-2 block text-[11px] font-semibold tracking-[0.1em] text-muted uppercase">
+        <legend className="mb-1.5 block text-[13px] font-medium text-ink-soft">
           ¿Entre quiénes se divide?
         </legend>
         <button
           onClick={toggleAll}
-          className="absolute top-0 right-0 text-[11px] font-semibold text-accent transition-opacity hover:opacity-80"
+          className="absolute top-0 right-0 text-[13px] font-medium text-muted transition-colors hover:text-ink"
         >
           {participants.size === members.length ? 'Ninguno' : 'Todos'}
         </button>
 
-        <div className="flex flex-wrap justify-center gap-2.5">
+        <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
           {members.map((member) => {
             const selected = participants.has(member.id);
             const share = shares?.get(member.id);
             return (
-              <button
-                key={member.id}
-                onClick={() => toggleParticipant(member.id)}
-                className="flex w-14 flex-col items-center gap-1"
-                aria-pressed={selected}
-                aria-label={`${member.name}${selected ? ' (incluido)' : ' (excluido)'}`}
-              >
-                <span
-                  className={selected ? 'scale-110 transition-transform' : 'transition-transform'}
+              <li key={member.id}>
+                <button
+                  onClick={() => toggleParticipant(member.id)}
+                  className="flex w-full items-center gap-2.5 bg-canvas px-3 py-2.5 text-left transition-colors hover:bg-surface"
+                  aria-pressed={selected}
+                  aria-label={`${member.name}${selected ? ' (incluido)' : ' (excluido)'}`}
                 >
-                  <Avatar
-                    name={member.name}
-                    color={member.color}
-                    size="lg"
-                    dimmed={!selected}
-                    ring={selected}
-                  />
-                </span>
-                <span
-                  className={`w-full truncate text-center text-[10px] ${selected ? 'text-white' : 'text-muted-dim'}`}
-                >
-                  {firstName(member.name)}
-                </span>
-                <span className="font-mono text-[9px] text-money">
-                  {selected && share !== undefined ? money.primary(share) : ' '}
-                </span>
-              </button>
+                  <span
+                    className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                      selected ? 'border-ink bg-ink' : 'border-border-strong bg-canvas'
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {selected && (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    )}
+                  </span>
+                  <Avatar name={member.name} color={member.color} size="sm" dimmed={!selected} />
+                  <span
+                    className={`min-w-0 flex-1 truncate text-[13px] ${selected ? 'font-medium' : 'text-muted'}`}
+                  >
+                    {firstName(member.name)}
+                  </span>
+                  <span className="shrink-0 font-mono text-[12px] text-muted">
+                    {selected && share !== undefined ? money.primary(share) : ''}
+                  </span>
+                </button>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
-        <p className="mt-2.5 min-h-5 text-center text-xs text-accent">
+        <p className="mt-1.5 min-h-4 text-[12px] text-muted">
           {participantIds.length === 0
             ? 'Elegí al menos una persona.'
             : amountCents !== null && amountCents > 0
@@ -253,7 +265,7 @@ function ExpenseForm({ editing, group, members, saving, onClose, onSave, onDelet
         )}
       </Field>
 
-      <div className="mt-2 flex gap-2.5">
+      <div className="mt-5 flex gap-2.5">
         {editing &&
           (confirmingDelete ? (
             <>
@@ -265,12 +277,12 @@ function ExpenseForm({ editing, group, members, saving, onClose, onSave, onDelet
               >
                 {saving ? 'Borrando...' : 'Confirmar borrado'}
               </Button>
-              <Button variant="ghost" onClick={() => setConfirmingDelete(false)} className="px-4">
+              <Button variant="ghost" onClick={() => setConfirmingDelete(false)}>
                 No
               </Button>
             </>
           ) : (
-            <Button variant="danger" onClick={() => setConfirmingDelete(true)} className="px-5">
+            <Button variant="danger" onClick={() => setConfirmingDelete(true)}>
               Eliminar
             </Button>
           ))}

@@ -13,6 +13,7 @@ import { computeBalances, settle, totalCents as sumExpenses } from '@shared/sett
 import { useGroup } from '../hooks/useGroup';
 import { makeFormatter } from '../lib/display';
 import { ErrorBanner, Loading } from './ui';
+import { IconPlus } from './icons';
 import { GroupHeader } from './GroupHeader';
 import { PinGate } from './PinGate';
 import { ExpensesTab } from './ExpensesTab';
@@ -22,7 +23,7 @@ import { ExpenseSheet } from './ExpenseSheet';
 import { SettingsSheet } from './SettingsSheet';
 import { ShareSheet } from './ShareSheet';
 
-type Tab = 'gastos' | 'saldos' | 'stats';
+type Tab = 'gastos' | 'saldos' | 'resumen';
 
 export function GroupPage({ code }: { code: string }) {
   const group = useGroup(code);
@@ -42,7 +43,6 @@ export function GroupPage({ code }: { code: string }) {
 
     const memberIds = snapshot.members.map((m) => m.id);
     const balances = computeBalances(snapshot.expenses, memberIds);
-
     const paidByMember = new Map(balances.map((b) => [b.memberId, b.paidCents]));
 
     return {
@@ -66,16 +66,14 @@ export function GroupPage({ code }: { code: string }) {
 
   if (group.status === 'not-found') {
     return (
-      <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center px-8 text-center">
-        <div className="mb-4 text-5xl" aria-hidden="true">
-          🧭
-        </div>
-        <h1 className="text-2xl font-bold">Grupo no encontrado</h1>
-        <p className="mt-2 text-sm text-muted">
-          No existe ningún grupo con el código <span className="font-mono text-accent">{code}</span>
-          . Revisá que esté bien escrito.
+      <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-8">
+        <h1 className="text-xl font-semibold tracking-tight">Grupo no encontrado</h1>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-muted">
+          No existe ningún grupo con el código{' '}
+          <span className="font-mono tracking-[0.15em] text-ink">{code}</span>. Revisá que esté bien
+          escrito.
         </p>
-        <Link to="/" className="mt-6 text-[13px] text-muted transition-colors hover:text-white">
+        <Link to="/" className="mt-5 text-[13px] text-muted transition-colors hover:text-ink">
           ← Volver al inicio
         </Link>
       </main>
@@ -94,9 +92,9 @@ export function GroupPage({ code }: { code: string }) {
   const { balances, transfers, paidByMember, total } = derived;
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'gastos', label: `💸 Gastos (${snapshot.expenses.length})` },
-    { id: 'saldos', label: '⚖️ Quién debe' },
-    { id: 'stats', label: '📊 Stats' },
+    { id: 'gastos', label: `Gastos (${snapshot.expenses.length})` },
+    { id: 'saldos', label: 'Saldos' },
+    { id: 'resumen', label: 'Resumen' },
   ];
 
   function openNewExpense() {
@@ -122,17 +120,17 @@ export function GroupPage({ code }: { code: string }) {
       />
 
       <nav
-        className="sticky top-0 z-30 flex border-b border-border-soft bg-ink"
+        className="sticky top-0 z-30 flex border-b border-border bg-canvas/90 backdrop-blur"
         aria-label="Vistas"
       >
         {tabs.map((item) => (
           <button
             key={item.id}
             onClick={() => setTab(item.id)}
-            className={`flex-1 border-b-2 px-2 py-3 text-[13px] font-semibold transition-colors ${
+            className={`flex-1 border-b-2 px-2 py-3 text-[13px] font-medium transition-colors ${
               tab === item.id
-                ? 'border-accent text-white'
-                : 'border-transparent text-muted hover:text-white/80'
+                ? 'border-ink text-ink'
+                : 'border-transparent text-muted hover:text-ink-soft'
             }`}
             aria-current={tab === item.id ? 'page' : undefined}
           >
@@ -163,7 +161,7 @@ export function GroupPage({ code }: { code: string }) {
           />
         )}
 
-        {tab === 'stats' && (
+        {tab === 'resumen' && (
           <StatsTab
             expenses={snapshot.expenses}
             members={snapshot.members}
@@ -176,12 +174,10 @@ export function GroupPage({ code }: { code: string }) {
 
       <button
         onClick={openNewExpense}
-        className="fixed right-5 bottom-7 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-accent to-accent-strong text-3xl leading-none text-white shadow-xl shadow-accent/40 transition-transform hover:scale-105"
+        className="fixed right-5 bottom-6 z-40 flex h-13 w-13 items-center justify-center rounded-full bg-ink text-white shadow-lg transition-colors hover:bg-ink-soft"
         aria-label="Agregar gasto"
       >
-        <span aria-hidden="true" className="-mt-0.5">
-          +
-        </span>
+        <IconPlus size={22} />
       </button>
 
       <ExpenseSheet

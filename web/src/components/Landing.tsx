@@ -5,28 +5,25 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Input } from './ui';
+import { Button, IconButton, Input } from './ui';
+import { IconClose } from './icons';
 import { CreateGroupSheet } from './CreateGroupSheet';
 import { forgetGroup, getRecentGroups } from '../lib/session';
 
 const STEPS = [
   {
-    icon: '👥',
     title: 'Creá el grupo',
     text: 'Nombre del viaje, quiénes van y en qué moneda gastan.',
   },
   {
-    icon: '🔗',
     title: 'Compartí el código',
     text: 'Cada grupo tiene un link propio. Sin cuentas, sin emails, sin contraseñas.',
   },
   {
-    icon: '🧾',
     title: 'Cargá los gastos',
     text: 'Quién pagó y entre quiénes se divide. El reparto se calcula solo.',
   },
   {
-    icon: '⚖️',
     title: 'Saldá en pocos pasos',
     text: 'La app resuelve la menor cantidad de transferencias para que nadie quede debiendo.',
   },
@@ -51,25 +48,18 @@ export function Landing() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-lg flex-col px-6 pt-16 pb-12">
-      <header className="mb-10 text-center">
-        <div className="mb-4 text-5xl" aria-hidden="true">
-          ✈️
-        </div>
-        <h1 className="text-4xl leading-tight font-bold">
-          Cuentas <span className="text-accent">Claras</span>
-        </h1>
-        <p className="mx-auto mt-3 max-w-sm text-[15px] leading-relaxed text-muted">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pt-20 pb-12">
+      <header className="mb-9">
+        <h1 className="text-[32px] leading-[1.15] font-semibold tracking-tight">Cuentas Claras</h1>
+        <p className="mt-3 text-[15px] leading-relaxed text-muted">
           Dividí los gastos de un viaje en grupo y descubrí quién le debe a quién, con las mínimas
           transferencias posibles.
         </p>
       </header>
 
-      <div className="mb-4">
-        <Button onClick={() => setCreating(true)} className="w-full">
-          Crear un grupo nuevo
-        </Button>
-      </div>
+      <Button onClick={() => setCreating(true)} className="mb-3 w-full">
+        Crear un grupo
+      </Button>
 
       <form
         className="mb-10"
@@ -88,9 +78,9 @@ export function Landing() {
             autoComplete="off"
             autoCapitalize="characters"
             spellCheck={false}
-            className="text-center font-mono tracking-[0.25em] uppercase placeholder:tracking-normal placeholder:normal-case"
+            className="text-center font-mono tracking-[0.2em] uppercase placeholder:font-sans placeholder:tracking-normal placeholder:normal-case"
           />
-          <Button type="submit" variant="ghost" disabled={!canJoin} className="shrink-0 px-5">
+          <Button type="submit" variant="ghost" disabled={!canJoin} className="shrink-0">
             Entrar
           </Button>
         </div>
@@ -98,28 +88,26 @@ export function Landing() {
 
       {recent.length > 0 && (
         <section className="mb-10">
-          <h2 className="mb-3 text-[11px] font-semibold tracking-[0.1em] text-muted uppercase">
-            Tus grupos
-          </h2>
-          <ul className="space-y-2">
+          <h2 className="mb-2.5 text-[13px] font-medium text-muted">Tus grupos</h2>
+          <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
             {recent.map((group) => (
-              <li key={group.code} className="flex items-center gap-2">
+              <li key={group.code} className="flex items-center bg-canvas">
                 <button
                   onClick={() => void navigate(`/g/${group.code}`)}
-                  className="flex flex-1 items-center justify-between rounded-xl border border-border bg-surface px-4 py-3 text-left transition-colors hover:border-accent/50"
+                  className="flex flex-1 items-center justify-between gap-3 px-3.5 py-3 text-left transition-colors hover:bg-surface"
                 >
-                  <span className="truncate text-sm font-semibold">{group.name}</span>
-                  <span className="ml-3 shrink-0 font-mono text-xs tracking-widest text-accent">
+                  <span className="truncate text-sm font-medium">{group.name}</span>
+                  <span className="shrink-0 font-mono text-xs tracking-widest text-muted">
                     {group.code}
                   </span>
                 </button>
-                <button
+                <IconButton
+                  label={`Quitar ${group.name} de la lista`}
                   onClick={() => removeRecent(group.code)}
-                  className="shrink-0 px-2 text-muted-dim transition-colors hover:text-danger"
-                  aria-label={`Quitar ${group.name} de la lista`}
+                  className="mr-1.5 h-8 w-8"
                 >
-                  ✕
-                </button>
+                  <IconClose size={15} />
+                </IconButton>
               </li>
             ))}
           </ul>
@@ -127,23 +115,18 @@ export function Landing() {
       )}
 
       <section className="mt-auto">
-        <h2 className="mb-4 text-[11px] font-semibold tracking-[0.1em] text-muted uppercase">
-          Cómo funciona
-        </h2>
+        <h2 className="mb-4 text-[13px] font-medium text-muted">Cómo funciona</h2>
         <ol className="space-y-4">
           {STEPS.map((step, index) => (
             <li key={step.title} className="flex gap-3.5">
               <span
-                className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface text-base"
+                className="mt-px flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border font-mono text-[11px] text-muted"
                 aria-hidden="true"
               >
-                {step.icon}
+                {index + 1}
               </span>
               <div>
-                <p className="text-sm font-semibold">
-                  <span className="mr-1.5 font-mono text-xs text-accent">{index + 1}</span>
-                  {step.title}
-                </p>
+                <p className="text-sm font-medium">{step.title}</p>
                 <p className="mt-0.5 text-[13px] leading-relaxed text-muted">{step.text}</p>
               </div>
             </li>
@@ -151,14 +134,14 @@ export function Landing() {
         </ol>
       </section>
 
-      <footer className="mt-10 border-t border-border-soft pt-6 text-center text-xs text-muted-dim">
+      <footer className="mt-10 border-t border-border pt-6 text-[13px] text-muted">
         <p>
           Proyecto de código abierto ·{' '}
           <a
             href="https://github.com/juancreynoso/cuentas-claras"
             target="_blank"
             rel="noreferrer noopener"
-            className="text-muted underline decoration-dotted transition-colors hover:text-accent"
+            className="text-ink underline decoration-border underline-offset-2 transition-colors hover:decoration-ink"
           >
             ver en GitHub
           </a>

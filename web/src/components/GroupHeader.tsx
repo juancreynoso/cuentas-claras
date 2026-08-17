@@ -5,7 +5,8 @@
 import type { Group, Member } from '@shared/types';
 import { firstName } from '@shared/colors';
 import type { MoneyFormatter } from '../lib/display';
-import { Avatar } from './ui';
+import { Avatar, IconButton } from './ui';
+import { IconRefresh, IconSettings, IconShare } from './icons';
 
 interface Props {
   group: Group;
@@ -32,75 +33,61 @@ export function GroupHeader({
   onRefresh,
 }: Props) {
   return (
-    <header className="bg-gradient-to-b from-ink-raised to-ink px-5 pt-12 pb-5">
-      <div className="mb-5 flex items-start justify-between gap-4">
+    <header className="border-b border-border px-4 pt-6 pb-5">
+      <div className="mb-5 flex items-start justify-between gap-3">
         <div className="min-w-0">
+          <h1 className="truncate text-xl font-semibold tracking-tight">{group.name}</h1>
           <button
             onClick={onShare}
-            className="mb-1 flex items-center gap-1.5 font-mono text-[11px] tracking-[0.2em] text-muted transition-colors hover:text-accent"
-            aria-label="Compartir el código del grupo"
+            className="mt-0.5 font-mono text-xs tracking-[0.15em] text-muted transition-colors hover:text-ink"
           >
             {group.code}
-            <span aria-hidden="true" className="text-[10px]">
-              🔗
-            </span>
           </button>
-          <h1 className="truncate text-2xl leading-tight font-bold">{group.name}</h1>
         </div>
 
-        <div className="shrink-0 text-right">
-          <p className="text-[11px] text-muted">Total gastado</p>
-          <p className="font-mono text-xl font-bold text-money">{money.primary(totalCents)}</p>
-          {money.hasSecondary && (
-            <p className="font-mono text-xs text-muted">{money.secondary(totalCents)}</p>
-          )}
-          <p className="mt-0.5 min-h-4 text-[10px] text-accent" aria-live="polite">
-            {saving ? 'guardando...' : ''}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex items-start justify-between gap-3">
-        <ul className="flex flex-wrap gap-3">
-          {members.map((member) => {
-            const paid = paidByMember.get(member.id) ?? 0;
-            return (
-              <li key={member.id} className="flex w-12 flex-col items-center gap-1">
-                <Avatar name={member.name} color={member.color} size="lg" ring={paid > 0} />
-                <span className="w-full truncate text-center text-[10px] text-muted">
-                  {firstName(member.name)}
-                </span>
-                <span
-                  className="font-mono text-[10px] leading-tight"
-                  style={{ color: paid > 0 ? member.color : 'transparent' }}
-                >
-                  {paid > 0 ? money.compact(paid) : '·'}
-                </span>
-              </li>
-            );
-          })}
-        </ul>
-
-        <div className="mt-1 flex shrink-0 flex-col gap-2">
+        <div className="-mr-1.5 flex shrink-0 items-center">
+          <IconButton label="Compartir el grupo" onClick={onShare}>
+            <IconShare />
+          </IconButton>
           {/* Varias personas cargan gastos a la vez: hace falta poder traer
               lo que agregaron los demás sin recargar la página. */}
-          <button
-            onClick={onRefresh}
-            disabled={saving}
-            className="text-base text-muted transition-colors hover:text-white disabled:opacity-40"
-            aria-label="Actualizar los gastos del grupo"
-          >
-            <span className={saving ? 'inline-block animate-spin' : 'inline-block'}>🔄</span>
-          </button>
-          <button
-            onClick={onSettings}
-            className="text-lg text-muted transition-colors hover:text-white"
-            aria-label="Ajustes del grupo"
-          >
-            ⚙️
-          </button>
+          <IconButton label="Actualizar los gastos" onClick={onRefresh} disabled={saving}>
+            <IconRefresh className={saving ? 'animate-spin' : ''} />
+          </IconButton>
+          <IconButton label="Ajustes del grupo" onClick={onSettings}>
+            <IconSettings />
+          </IconButton>
         </div>
       </div>
+
+      <div className="mb-5 flex items-baseline gap-2.5">
+        <span className="font-mono text-3xl font-bold tracking-tight">
+          {money.primary(totalCents)}
+        </span>
+        {money.hasSecondary && (
+          <span className="font-mono text-sm text-muted">{money.secondary(totalCents)}</span>
+        )}
+        <span className="ml-auto text-xs text-muted" aria-live="polite">
+          {saving ? 'guardando…' : 'total gastado'}
+        </span>
+      </div>
+
+      <ul className="flex flex-wrap gap-x-4 gap-y-3">
+        {members.map((member) => {
+          const paid = paidByMember.get(member.id) ?? 0;
+          return (
+            <li key={member.id} className="flex items-center gap-2">
+              <Avatar name={member.name} color={member.color} size="md" dimmed={paid === 0} />
+              <span className="leading-tight">
+                <span className="block text-[13px] font-medium">{firstName(member.name)}</span>
+                <span className="block font-mono text-[11px] text-muted">
+                  {paid > 0 ? money.compact(paid) : '—'}
+                </span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </header>
   );
 }

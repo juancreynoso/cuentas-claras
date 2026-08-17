@@ -13,7 +13,8 @@ import { useState } from 'react';
 import type { Group, Member, UpdateGroupInput } from '@shared/types';
 import { LIMITS } from '@shared/types';
 import { CURRENCIES } from '@shared/currencies';
-import { Avatar, Button, Field, Input, Select, Sheet } from './ui';
+import { Avatar, Button, Field, IconButton, Input, Select, Sheet } from './ui';
+import { IconCheck, IconClose, IconPencil, IconTrash } from './icons';
 
 interface Props {
   open: boolean;
@@ -151,14 +152,14 @@ function SettingsForm({
         {saving ? 'Guardando...' : dirty ? 'Guardar cambios' : 'Sin cambios'}
       </Button>
 
-      <h3 className="mb-3 text-[11px] font-semibold tracking-[0.1em] text-muted uppercase">
+      <h3 className="mb-1.5 text-[13px] font-medium text-ink-soft">
         Integrantes ({members.length})
       </h3>
 
-      <ul className="mb-3 space-y-2">
+      <ul className="mb-3 divide-y divide-border overflow-hidden rounded-lg border border-border">
         {members.map((member) => (
-          <li key={member.id} className="flex items-center gap-2.5">
-            <Avatar name={member.name} color={member.color} size="md" />
+          <li key={member.id} className="flex items-center gap-2.5 bg-canvas px-3 py-2">
+            <Avatar name={member.name} color={member.color} size="sm" />
 
             {editingMember === member.id ? (
               <>
@@ -168,47 +169,48 @@ function SettingsForm({
                   maxLength={LIMITS.memberName.max}
                   autoFocus
                   aria-label={`Nuevo nombre para ${member.name}`}
+                  className="py-1.5 text-[13px]"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') void renameMember(member.id);
                     if (e.key === 'Escape') setEditingMember(null);
                   }}
                 />
-                <button
+                <IconButton
+                  label="Confirmar nombre"
                   onClick={() => void renameMember(member.id)}
-                  className="shrink-0 px-1.5 text-money"
-                  aria-label="Confirmar nombre"
+                  className="h-8 w-8"
                 >
-                  ✓
-                </button>
-                <button
+                  <IconCheck size={16} />
+                </IconButton>
+                <IconButton
+                  label="Cancelar"
                   onClick={() => setEditingMember(null)}
-                  className="shrink-0 px-1.5 text-muted"
-                  aria-label="Cancelar"
+                  className="h-8 w-8"
                 >
-                  ✕
-                </button>
+                  <IconClose size={16} />
+                </IconButton>
               </>
             ) : (
               <>
-                <span className="min-w-0 flex-1 truncate text-sm">{member.name}</span>
-                <button
+                <span className="min-w-0 flex-1 truncate text-[13px]">{member.name}</span>
+                <IconButton
+                  label={`Renombrar ${member.name}`}
                   onClick={() => {
                     setEditingMember(member.id);
                     setEditedName(member.name);
                   }}
-                  className="shrink-0 px-1.5 text-xs text-muted transition-colors hover:text-white"
-                  aria-label={`Renombrar ${member.name}`}
+                  className="h-8 w-8"
                 >
-                  ✏️
-                </button>
+                  <IconPencil size={15} />
+                </IconButton>
                 {members.length > 1 && (
-                  <button
+                  <IconButton
+                    label={`Eliminar ${member.name}`}
                     onClick={() => void onRemoveMember(member.id)}
-                    className="shrink-0 px-1.5 text-xs text-muted transition-colors hover:text-danger"
-                    aria-label={`Eliminar ${member.name}`}
+                    className="h-8 w-8 hover:text-danger"
                   >
-                    🗑️
-                  </button>
+                    <IconTrash size={15} />
+                  </IconButton>
                 )}
               </>
             )}
@@ -232,14 +234,14 @@ function SettingsForm({
             variant="ghost"
             onClick={() => void addMember()}
             disabled={!newMember.trim() || saving}
-            className="shrink-0 px-4"
+            className="shrink-0"
           >
             Sumar
           </Button>
         </div>
       )}
 
-      <p className="mt-4 text-[11px] leading-relaxed text-muted-dim">
+      <p className="mt-4 text-[12px] leading-relaxed text-muted">
         No se puede eliminar a alguien que pagó gastos: primero hay que editar o borrar esos gastos.
         Así los saldos nunca quedan descuadrados.
       </p>

@@ -15,7 +15,7 @@ run_worker_first = ["/api/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "cuentas-claras-db"
-database_id = "PLACEHOLDER_CORRER_npm_run_db:create"
+database_id = "873f85fb-d22c-4946-8207-2423be91120f"
 
 [observability]
 enabled = true

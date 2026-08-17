@@ -10,7 +10,8 @@ import { CURRENCIES } from '@shared/currencies';
 import { LIMITS } from '@shared/types';
 import { colorForIndex } from '@shared/colors';
 import { ApiClientError, api } from '../lib/api';
-import { Avatar, Button, ErrorBanner, Field, Input, Select, Sheet } from './ui';
+import { Avatar, Button, ErrorBanner, Field, IconButton, Input, Select, Sheet } from './ui';
+import { IconClose } from './icons';
 
 interface Props {
   open: boolean;
@@ -120,7 +121,7 @@ export function CreateGroupSheet({ open, onClose, onCreated }: Props) {
       </Field>
 
       <fieldset className="mb-4">
-        <legend className="mb-1.5 block text-[11px] font-semibold tracking-[0.1em] text-muted uppercase">
+        <legend className="mb-1.5 block text-[13px] font-medium text-ink-soft">
           ¿Quiénes van?
         </legend>
 
@@ -143,13 +144,13 @@ export function CreateGroupSheet({ open, onClose, onCreated }: Props) {
                 className={duplicates.has(member.trim()) ? 'border-danger' : ''}
               />
               {members.length > 2 && (
-                <button
+                <IconButton
+                  label={`Quitar integrante ${index + 1}`}
                   onClick={() => removeMemberRow(index)}
-                  className="shrink-0 px-2 text-muted transition-colors hover:text-danger"
-                  aria-label={`Quitar integrante ${index + 1}`}
+                  className="h-8 w-8"
                 >
-                  ✕
-                </button>
+                  <IconClose size={15} />
+                </IconButton>
               )}
             </div>
           ))}
@@ -158,7 +159,7 @@ export function CreateGroupSheet({ open, onClose, onCreated }: Props) {
         {members.length < LIMITS.membersPerGroup.max && (
           <button
             onClick={addMemberRow}
-            className="mt-2.5 text-[13px] font-semibold text-accent transition-opacity hover:opacity-80"
+            className="mt-2.5 text-[13px] font-medium text-muted transition-colors hover:text-ink"
           >
             + Agregar integrante
           </button>
@@ -170,7 +171,7 @@ export function CreateGroupSheet({ open, onClose, onCreated }: Props) {
           </p>
         )}
         {filledMembers.length < 2 && (
-          <p className="mt-2 text-xs text-muted-dim">Completá al menos dos nombres.</p>
+          <p className="mt-2 text-xs text-muted">Completá al menos dos nombres.</p>
         )}
       </fieldset>
 
@@ -178,12 +179,12 @@ export function CreateGroupSheet({ open, onClose, onCreated }: Props) {
       {!showExtras ? (
         <button
           onClick={() => setShowExtras(true)}
-          className="mb-5 text-[13px] text-muted transition-colors hover:text-white"
+          className="mb-5 text-[13px] text-muted transition-colors hover:text-ink"
         >
           + Opciones: segunda moneda y PIN
         </button>
       ) : (
-        <div className="mb-5 rounded-xl border border-border-soft bg-surface/40 p-4">
+        <div className="mb-5 rounded-lg border border-border bg-surface p-3.5">
           <Field
             label="Segunda moneda (opcional)"
             hint="Muestra cada monto también convertido, útil si el viaje es en otra moneda que la de tu bolsillo."

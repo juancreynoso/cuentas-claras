@@ -30,12 +30,9 @@ function GroupRoute() {
 
 function NotFound() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center px-8 text-center">
-      <div className="mb-4 text-5xl" aria-hidden="true">
-        🗺️
-      </div>
-      <h1 className="text-2xl font-bold">Esta página no existe</h1>
-      <Link to="/" className="mt-6 text-[13px] text-muted transition-colors hover:text-white">
+    <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-8">
+      <h1 className="text-xl font-semibold tracking-tight">Esta página no existe</h1>
+      <Link to="/" className="mt-4 text-[13px] text-muted transition-colors hover:text-ink">
         ← Volver al inicio
       </Link>
     </main>

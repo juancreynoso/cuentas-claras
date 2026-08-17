@@ -24,9 +24,8 @@ export function ExpensesTab({ expenses, members, money, onEdit }: Props) {
   if (expenses.length === 0) {
     return (
       <EmptyState
-        icon="🧾"
         title="Todavía no hay gastos"
-        description="Tocá el botón + para cargar el primero."
+        description="Tocá el botón de abajo a la derecha para cargar el primero."
       />
     );
   }
@@ -43,23 +42,21 @@ export function ExpensesTab({ expenses, members, money, onEdit }: Props) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {days.map((day) => {
         const dayTotal = day.items.reduce((sum, e) => sum + e.amountCents, 0);
         return (
           <section key={day.date}>
-            <div className="mb-2 flex items-baseline justify-between px-1">
-              <h3 className="text-[11px] font-semibold tracking-[0.1em] text-muted uppercase">
+            <div className="mb-1.5 flex items-baseline justify-between px-0.5">
+              <h3 className="text-[13px] font-medium text-ink-soft">
                 {formatDateRelative(day.date)}
               </h3>
-              <span className="font-mono text-[11px] text-muted-dim">
-                {money.compact(dayTotal)}
-              </span>
+              <span className="font-mono text-[11px] text-muted">{money.compact(dayTotal)}</span>
             </div>
-            <ul className="space-y-2">
+            <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border">
               {day.items.map((expense) => (
                 <li key={expense.id}>
-                  <ExpenseCard
+                  <ExpenseRow
                     expense={expense}
                     payer={byId.get(expense.payerId)}
                     members={members}
@@ -76,7 +73,7 @@ export function ExpensesTab({ expenses, members, money, onEdit }: Props) {
   );
 }
 
-function ExpenseCard({
+function ExpenseRow({
   expense,
   payer,
   members,
@@ -96,57 +93,51 @@ function ExpenseCard({
   const everyone = expense.participantIds.length === members.length;
   const perPerson =
     expense.participantIds.length > 0
-      ? Math.round(expense.amountCents / expense.participantIds.length)
+      ? Math.floor(expense.amountCents / expense.participantIds.length)
       : 0;
 
   return (
     <button
       onClick={onEdit}
-      className="animate-rise w-full rounded-card border border-border bg-surface px-4 py-3.5 text-left transition-colors hover:border-accent/40"
+      className="animate-rise w-full bg-canvas px-3.5 py-3 text-left transition-colors hover:bg-surface"
       aria-label={`Editar gasto: ${expense.description}`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-sm" aria-hidden="true">
-              {category.icon}
-            </span>
-            <p className="truncate text-[15px] font-semibold">{expense.description}</p>
-          </div>
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 text-base leading-none" aria-hidden="true">
+          {category.icon}
+        </span>
 
-          <div className="mt-1.5 flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[15px] font-medium">{expense.description}</p>
+
+          <div className="mt-1 flex items-center gap-1.5">
             {payer && <Avatar name={payer.name} color={payer.color} size="sm" />}
             <span className="text-xs text-muted">
               pagó {payer ? firstName(payer.name) : 'alguien'}
             </span>
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center gap-1">
+          <p className="mt-1.5 text-xs text-muted">
             {everyone ? (
-              <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] text-accent">
-                entre todos · {money.primary(perPerson)} c/u
-              </span>
+              <>entre todos · {money.primary(perPerson)} c/u</>
             ) : (
-              expense.participantIds.map((id) => {
-                const member = byId.get(id);
-                if (!member) return null;
-                return (
-                  <span
-                    key={id}
-                    className="rounded-full px-2 py-0.5 text-[10px]"
-                    style={{ backgroundColor: `${member.color}22`, color: member.color }}
-                    title={`${member.name}: ${money.primary(shares.get(id) ?? 0)}`}
-                  >
-                    {firstName(member.name)}
-                  </span>
-                );
-              })
+              <>
+                entre{' '}
+                {expense.participantIds
+                  .map((id) => {
+                    const member = byId.get(id);
+                    return member ? firstName(member.name) : null;
+                  })
+                  .filter(Boolean)
+                  .join(', ')}{' '}
+                · {money.primary(shares.get(expense.participantIds[0] as string) ?? 0)} c/u
+              </>
             )}
-          </div>
+          </p>
         </div>
 
         <div className="shrink-0 text-right">
-          <p className="font-mono text-base font-bold whitespace-nowrap text-money">
+          <p className="font-mono text-[15px] font-bold whitespace-nowrap">
             {money.primary(expense.amountCents)}
           </p>
           {money.hasSecondary && (

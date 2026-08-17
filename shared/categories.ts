@@ -7,11 +7,14 @@
  * puede fijar la categoría a mano y eso gana sobre la inferencia.
  */
 
+/**
+ * Una categoría no lleva color: la interfaz es monocroma y el emoji ya
+ * alcanza para identificarla de un vistazo en la lista.
+ */
 export interface Category {
   id: string;
   name: string;
   icon: string;
-  color: string;
   keywords: readonly string[];
 }
 
@@ -20,7 +23,6 @@ export const CATEGORIES: readonly Category[] = [
     id: 'comida',
     name: 'Comida y bebida',
     icon: '🍽️',
-    color: '#FF6B6B',
     keywords: [
       'cena', 'almuerzo', 'desayuno', 'comida', 'merienda', 'restaurant', 'resto',
       'sushi', 'pizza', 'pasta', 'burger', 'hamburguesa', 'helado', 'sandwich',
@@ -35,7 +37,6 @@ export const CATEGORIES: readonly Category[] = [
     id: 'transporte',
     name: 'Transporte',
     icon: '🚗',
-    color: '#45B7D1',
     keywords: [
       'uber', 'cabify', 'didi', 'taxi', 'remis', 'colectivo', 'bondi', 'bus',
       'micro', 'tren', 'metro', 'subte', 'tranvia', 'ferry', 'barco', 'transfer',
@@ -49,7 +50,6 @@ export const CATEGORIES: readonly Category[] = [
     id: 'alojamiento',
     name: 'Alojamiento',
     icon: '🏨',
-    color: '#98D8C8',
     keywords: [
       'hotel', 'hostel', 'airbnb', 'alojamiento', 'habitacion', 'cuarto',
       'apart', 'apartamento', 'departamento', 'cabana', 'camping', 'noche',
@@ -61,7 +61,6 @@ export const CATEGORIES: readonly Category[] = [
     id: 'entradas',
     name: 'Entradas y turismo',
     icon: '🎟️',
-    color: '#FFA07A',
     keywords: [
       'entrada', 'entradas', 'ticket', 'museo', 'catedral', 'iglesia',
       'monumento', 'tour', 'guia', 'visita', 'excursion', 'paseo', 'parque',
@@ -75,7 +74,6 @@ export const CATEGORIES: readonly Category[] = [
     id: 'compras',
     name: 'Compras y mercado',
     icon: '🛍️',
-    color: '#4ECDC4',
     keywords: [
       'super', 'supermercado', 'mercado', 'almacen', 'kiosco', 'kiosko',
       'tienda', 'shopping', 'mall', 'ropa', 'zapatos', 'campera',
@@ -88,7 +86,6 @@ export const CATEGORIES: readonly Category[] = [
     id: 'auto',
     name: 'Auto y parking',
     icon: '🅿️',
-    color: '#7c6fff',
     keywords: [
       'estacionamiento', 'parking', 'garage', 'garaje', 'cochera', 'peaje',
       'autopista', 'alquiler de auto', 'rent a car', 'rental', 'multa', 'lavadero',
@@ -99,7 +96,6 @@ export const CATEGORIES: readonly Category[] = [
     id: 'salud',
     name: 'Salud y farmacia',
     icon: '💊',
-    color: '#F78FB3',
     keywords: [
       'farmacia', 'medico', 'doctor', 'hospital', 'clinica', 'guardia', 'remedio',
       'medicamento', 'analgesico', 'ibuprofeno', 'paracetamol', 'curita',
@@ -111,7 +107,6 @@ export const CATEGORIES: readonly Category[] = [
     id: 'otros',
     name: 'Otros',
     icon: '📦',
-    color: '#8888a0',
     keywords: [],
   },
 ] as const;

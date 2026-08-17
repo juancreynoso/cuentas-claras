@@ -20,7 +20,7 @@ export function ShareSheet({ open, group, onClose }: Props) {
   const [copied, setCopied] = useState<'code' | 'link' | null>(null);
   const url = `${window.location.origin}/g/${group.code}`;
 
-  // Resetea el "¡copiado!" después de un momento.
+  // Resetea el "copiado" después de un momento.
   useEffect(() => {
     if (!copied) return;
     const timer = window.setTimeout(() => setCopied(null), 2000);
@@ -61,27 +61,28 @@ export function ShareSheet({ open, group, onClose }: Props) {
 
   return (
     <Sheet open={open} title="Compartir grupo" onClose={onClose}>
-      <p className="mb-5 text-sm leading-relaxed text-muted">
-        Cualquiera con este código puede cargar gastos en <strong>{group.name}</strong>
+      <p className="mb-5 text-[13px] leading-relaxed text-muted">
+        Cualquiera con este código puede cargar gastos en{' '}
+        <span className="font-medium text-ink">{group.name}</span>
         {group.hasPin ? ' (le va a pedir el PIN).' : '. El grupo no tiene PIN.'}
       </p>
 
-      <div className="mb-4 rounded-card border border-border bg-surface px-5 py-6 text-center">
-        <p className="mb-2 text-[11px] tracking-[0.1em] text-muted uppercase">Código del grupo</p>
+      <div className="mb-4 rounded-lg border border-border bg-surface px-5 py-7 text-center">
+        <p className="mb-1.5 text-xs text-muted">Código del grupo</p>
         <p
           id="share-code-text"
-          className="font-mono text-3xl font-bold tracking-[0.3em] text-accent select-all"
+          className="font-mono text-3xl font-bold tracking-[0.25em] select-all"
         >
           {group.code}
         </p>
       </div>
 
-      <div className="mb-3 flex gap-2.5">
+      <div className="mb-2.5 flex gap-2.5">
         <Button variant="ghost" onClick={() => void copy(group.code, 'code')} className="flex-1">
-          {copied === 'code' ? '✓ Copiado' : 'Copiar código'}
+          {copied === 'code' ? 'Copiado' : 'Copiar código'}
         </Button>
         <Button variant="ghost" onClick={() => void copy(url, 'link')} className="flex-1">
-          {copied === 'link' ? '✓ Copiado' : 'Copiar link'}
+          {copied === 'link' ? 'Copiado' : 'Copiar link'}
         </Button>
       </div>
 
@@ -90,8 +91,8 @@ export function ShareSheet({ open, group, onClose }: Props) {
       </Button>
 
       {!group.hasPin && (
-        <p className="mt-5 rounded-xl border border-border-soft bg-ink px-4 py-3 text-[12px] leading-relaxed text-muted-dim">
-          Este grupo no tiene PIN: el link es la única llave. Trátalo como un documento compartido y
+        <p className="mt-5 rounded-lg border border-border bg-surface px-3.5 py-3 text-[12px] leading-relaxed text-muted">
+          Este grupo no tiene PIN: el link es la única llave. Tratalo como un documento compartido y
           mandalo sólo a quienes viajan con vos.
         </p>
       )}

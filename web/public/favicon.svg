@@ -1,11 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0f0f1a" />
+  <rect width="64" height="64" rx="14" fill="#ffffff" />
+  <rect width="64" height="64" rx="14" fill="none" stroke="#e7e7e9" stroke-width="2" />
   <!-- Balanza: la idea del proyecto es equilibrar lo que cada uno puso. -->
-  <g stroke="#7c6fff" stroke-width="4" stroke-linecap="round" fill="none">
-    <path d="M32 14v34" />
-    <path d="M14 24h36" />
+  <g stroke="#18181b" stroke-width="4" stroke-linecap="round" fill="none">
+    <path d="M32 18v30" />
+    <path d="M15 25h34" />
+    <path d="M24 48h16" />
   </g>
-  <path d="M14 24 8 38h12z" fill="#4ecdc4" />
-  <path d="M50 24 44 38h12z" fill="#4ecdc4" />
-  <circle cx="32" cy="12" r="4" fill="#7c6fff" />
+  <path d="M15 25 9 38h12z" fill="#18181b" />
+  <path d="M49 25l-6 13h12z" fill="#18181b" />
+  <circle cx="32" cy="16" r="3.5" fill="#18181b" />
 </svg>
