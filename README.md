@@ -108,9 +108,9 @@ git clone https://github.com/juancreynoso/cuentas-claras.git
 cd cuentas-claras
 npm install
 
-# Base local y secreto de desarrollo
+# Base local y develop secret
 npm run db:init
-cp api/.dev.vars.example api/.dev.vars   # y poné un valor al azar en SESSION_SECRET
+cp api/.dev.vars.example api/.dev.vars   # poner un valor al azar en SESSION_SECRET
 
 npm run dev        # Vite en :5173 + Worker en :8787
 ```
@@ -135,16 +135,16 @@ npm run dev        # Vite en :5173 + Worker en :8787
 ```bash
 cd api
 
-# 1. Crear la base y pegar el database_id que imprime en wrangler.toml
+# Crear la base y pegar el database_id que imprime en wrangler.toml
 npm run db:create
 
-# 2. Aplicar el esquema en remoto
+# Aplicar el esquema en remoto
 npm run db:init:remote
 
-# 3. Secreto de sesión (32+ caracteres al azar)
+# Secreto de sesión (32+ caracteres al azar)
 openssl rand -hex 32 | npx wrangler secret put SESSION_SECRET
 
-# 4. Publicar frontend y Worker
+# Publicar frontend y Worker
 cd .. && npm run deploy
 ```
 
