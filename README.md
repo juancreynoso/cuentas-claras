@@ -14,12 +14,6 @@
 
 ---
 
-## De dónde salió
-
-Esto surgió **durante un viaje de amigos**, donde a los cinco días de repartir cuentas a mano y a anotando en WhatsApp ya nadie sabía quién había puesto qué. La idea es resolver lo simple, anotar el monto que cada uno aporta, dividir entre todos y llevar algunas estadísticas.
-
----
-
 ## Qué hace
 
 - **Grupos por código compartible.** Creás un grupo y obtenés una URL tipo `/g/A7K2P9`. Se manda por WhatsApp y listo. Sin cuentas que crear.
