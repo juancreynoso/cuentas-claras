@@ -2,14 +2,6 @@
 
 **Dividí los gastos de un viaje en grupo y descubrí quién le debe a quién, con las mínimas transferencias posibles.** Sin registro, sin emails: creás un grupo, compartís el código y todos cargan gastos desde su teléfono.
 
-<!--
-  Después del primer `npm run deploy`, wrangler imprime la URL real
-  (algo como https://cuentas-claras.<tu-subdominio>.workers.dev).
-  Reemplazá la línea de abajo por:
-
-  🔗 **[Ver la app en vivo](URL_REAL)** · [Reportar algo](https://github.com/juancreynoso/cuentas-claras/issues)
--->
-
 ![CI](https://github.com/juancreynoso/cuentas-claras/actions/workflows/ci.yml/badge.svg)
 
 ---
