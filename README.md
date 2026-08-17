@@ -130,7 +130,7 @@ npm run dev        # Vite en :5173 + Worker en :8787
 | Comando              | Qué hace                             |
 | -------------------- | ------------------------------------ |
 | `npm run dev`        | Frontend y Worker juntos             |
-| `npm test`           | Los 89 tests                         |
+| `npm test`           | Correr los 89                        |
 | `npm run test:watch` | Tests en modo watch                  |
 | `npm run typecheck`  | `tsc --noEmit` en los dos workspaces |
 | `npm run lint`       | ESLint con información de tipos      |
@@ -160,7 +160,7 @@ cd .. && npm run deploy
 
 ## Tests
 
-89 tests, concentrados donde un error cuesta plata:
+89 tests:
 
 ```
 shared/settlement.test.ts    Reparto exacto, invariante de suma cero,
@@ -176,16 +176,14 @@ web/src/components/          ExpenseSheet: validación, reparto en vivo,
 
 Además hay un [script end-to-end](scripts/e2e.sh) que corre 27 verificaciones contra un Worker local: autorización, aislamiento entre grupos, verificación de PIN, validaciones y ruteo del SPA.
 
-Dos bugs reales salieron de escribir estos tests: el redondeo de `1.005`, y `farmacia` clasificando como _compras_ en lugar de _salud_ porque esa categoría se evaluaba antes.
-
 ---
 
 ## Límites conocidos
 
-Cosas que faltan, a conciencia:
+Cosas que faltan:
 
-- **Sin rate limiting.** El PBKDF2 de 100.000 iteraciones encarece cada intento de PIN, y hay que conocer el código de 6 caracteres antes de poder probar. Aun así, lo correcto sería sumar el binding de rate limiting de Cloudflare en `/session`. Es lo primero de la lista.
-- **Última escritura gana.** Si dos personas editan el mismo gasto a la vez, queda la última.
+- **Sin rate limiting.** Un intento de pin requiere 100.000 iteraciones, y hay que conocer el código de 6 caracteres antes de poder probar. Aun así, lo correcto sería sumar el binding de rate limiting de Cloudflare en `/session`.
+- **Última escritura gana.** Si dos personas editan el mismo gasto a la vez, queda la última. Debería agregarse un timestamp para comparar.
 - **Sin realtime.** Los cambios de los demás aparecen al recargar.
 - **Cotizaciones a mano.** No hay API de tipo de cambio; el grupo fija la suya. Es predecible, pero se desactualiza.
 - **Cada mutación relee todo el grupo.** Es un round-trip extra a cambio de no tener estado divergente nunca. Con miles de gastos habría que pasar a updates incrementales.
@@ -202,7 +200,7 @@ Sin librería de estado, sin librería de datos, sin componentes de terceros.
 
 ## Contribuir
 
-Los issues y los PRs son bienvenidos: lo que falta está en [Límites conocidos](#límites-conocidos). Antes de abrir un PR, `npm run verify` tiene que pasar en verde.
+Las contribuciones son bienvenidas. En [límites conocidos](#límites-conocidos) ya hay cosas que faltan y cualquier funcionalidad también es bienvenida. Antes de abrir un PR, `npm run verify`.
 
 ---
 
