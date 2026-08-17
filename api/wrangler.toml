@@ -22,8 +22,12 @@ enabled = true
 
 # Limpieza semanal de grupos abandonados (domingos 03:00 UTC). Ver el handler
 # `scheduled` en src/index.ts y la sección "Retención de datos" del README.
+#
+# El día va como SUN y no como número: en Cloudflare la semana es 1-7 con
+# 1 = domingo, no el 0-6 del cron estándar. Un "0" acá es un error de API,
+# y un "1" se leería como lunes viniendo de cualquier otro sistema.
 [triggers]
-crons = ["0 3 * * 0"]
+crons = ["0 3 * * SUN"]
 
 # SESSION_SECRET es un secreto, NO una var. Configurarlo con:
 #   wrangler secret put SESSION_SECRET

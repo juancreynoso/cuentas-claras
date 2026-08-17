@@ -144,38 +144,6 @@ cd .. && npm run deploy
 
 ---
 
-## Tests
-
-89 tests:
-
-```
-shared/settlement.test.ts    Reparto exacto, invariante de suma cero,
-                             cota de n-1 transferencias, 200 escenarios al azar
-shared/money.test.ts         Parseo con coma y punto, redondeo, ida y vuelta,
-                             monedas sin decimales
-shared/categories.test.ts    Inferencia, tildes, palabras completas, override
-shared/colors.test.ts        Iniciales con acentos, emoji y nombres raros
-web/src/lib/dates.test.ts    Fecha local vs UTC
-web/src/components/          ExpenseSheet: validación, reparto en vivo,
-  ExpenseSheet.test.tsx      confirmación de borrado
-```
-
-Además hay un [script end-to-end](scripts/e2e.sh) que corre 27 verificaciones contra un Worker local: autorización, aislamiento entre grupos, verificación de PIN, validaciones y ruteo del SPA.
-
----
-
-## Límites conocidos
-
-Cosas que faltan:
-
-- **Sin rate limiting.** Un intento de pin requiere 100.000 iteraciones, y hay que conocer el código de 6 caracteres antes de poder probar. Aun así, lo correcto sería sumar el binding de rate limiting de Cloudflare en `/session`.
-- **Última escritura gana.** Si dos personas editan el mismo gasto a la vez, queda la última. Debería agregarse un timestamp para comparar.
-- **Sin realtime.** Los cambios de los demás aparecen al recargar.
-- **Cotizaciones a mano.** No hay API de tipo de cambio; el grupo fija la suya. Es predecible, pero se desactualiza.
-- **Cada mutación relee todo el grupo.** Es un round-trip extra a cambio de no tener estado divergente nunca. Con miles de gastos habría que pasar a updates incrementales.
-
----
-
 ## Retención de datos
 
 Dos mecanismos evitan que la base crezca sin control y que queden datos personales guardados para siempre:
@@ -195,7 +163,7 @@ Sin librería de estado, sin librería de datos, sin componentes de terceros.
 
 ## Contribuir
 
-Las contribuciones son bienvenidas. En [límites conocidos](#límites-conocidos) ya hay cosas que faltan y cualquier funcionalidad también es bienvenida. Antes de abrir un PR, `npm run verify`.
+Las contribuciones son bienvenidas, tanto funcionalidades como fixes. Antes de abrir un PR, `npm run verify`.
 
 ---
 
