@@ -1,4 +1,4 @@
-# Cuentas Claras ✈️
+# Cuentas Claras
 
 **Dividí los gastos de un viaje en grupo y descubrí quién le debe a quién, con las mínimas transferencias posibles.** Sin registro, sin emails: creás un grupo, compartís el código y todos cargan gastos desde su teléfono.
 
@@ -16,40 +16,17 @@
 
 ## Capturas
 
-<!--
-  Pendiente: correr `npm run dev`, sacar tres capturas en vista de teléfono
-  (390×844 en el modo responsive del navegador) y guardarlas acá:
 
-    docs/screenshots/gastos.png    la lista de gastos, con varios cargados
-    docs/screenshots/saldos.png    la pestaña "Quién debe"
-    docs/screenshots/stats.png     el desglose por categoría
-
-  Después descomentar el bloque de abajo.
 
 | Gastos | Quién debe | Stats |
 |---|---|---|
 | ![Lista de gastos](docs/screenshots/gastos.png) | ![Saldos y transferencias](docs/screenshots/saldos.png) | ![Gasto por categoría](docs/screenshots/stats.png) |
--->
 
 ---
 
 ## De dónde salió
 
-Esto empezó como un archivo HTML de 700 líneas que escribí **durante un viaje por Europa**, en un hostel, porque a los cinco días de repartir cuentas a mano ya nadie sabía quién había puesto qué. Funcionaba: tenía los nombres de mis compañeros de viaje hardcodeados, una contraseña en el JavaScript y un `USD_RATE = 1.16` fijo.
-
-Este repo es ese prototipo convertido en un producto que puede usar cualquiera. La versión original está guardada en [`docs/legacy/`](docs/legacy/) a propósito: el contraste entre las dos es la parte interesante.
-
-|              | Prototipo (marzo 2026)                       | Ahora                                    |
-| ------------ | -------------------------------------------- | ---------------------------------------- |
-| Integrantes  | `const PERSONAS = ["Hernan", ...]`           | Los define quien crea el grupo           |
-| Grupos       | Uno solo, global                             | Ilimitados, aislados por código          |
-| Contraseña   | `const PASSWORD = "viaje2026"` en el cliente | PIN opcional, hash PBKDF2 en el servidor |
-| Autorización | Ninguna: la API era pública y escribible     | Token firmado con HMAC, por grupo        |
-| Moneda       | EUR con cotización fija a USD                | 18 monedas, secundaria configurable      |
-| Dinero       | Floats (`monto / participantes.length`)      | Enteros en unidad menor, reparto exacto  |
-| XSS          | `innerHTML` con texto del usuario            | React escapa por defecto + CSP           |
-| Datos        | Una clave de KV con todo el array            | D1 (SQLite) normalizado, 4 tablas        |
-| Tests        | —                                            | 89                                       |
+Esto surgió **durante un viaje de amigos**, donde a los cinco días de repartir cuentas a mano y a anotando en WhatsApp ya nadie sabía quién había puesto qué. La idea es resolver lo simple, anotar el monto que cada uno aporta, dividir entre todos y llevar algunas estadísticas.
 
 ---
 
@@ -61,54 +38,13 @@ Este repo es ese prototipo convertido en un producto que puede usar cualquiera. 
 - **Liquidación mínima.** En lugar de una matriz de "todos contra todos", la app calcula la lista más corta de transferencias que salda el viaje.
 - **Categorización automática.** Infiere la categoría de la descripción por palabras clave, en español y en inglés. Siempre se puede corregir a mano.
 - **Doble moneda.** Cada monto se puede mostrar convertido a una segunda moneda con la cotización que fija el grupo.
-- **Pensado para el teléfono.** Es donde se cargan los gastos: en la mesa del restaurante, no en un escritorio.
+- **Pensado para el teléfono.** Es donde se cargan los gastos: en la mesa del restaurante.
 
----
+El flujo completo son tres pasos:
 
-## Decisiones técnicas
-
-Las cuatro que más forma le dieron al proyecto.
-
-### 1. El dinero se guarda en enteros, no en floats
-
-El prototipo dividía con `monto / participantes.length` sobre números decimales. Eso trae dos problemas: `0.1 + 0.2 !== 0.3`, y al dividir €10 entre 3 la suma de las partes no vuelve a dar €10 — aparecen o desaparecen centavos.
-
-Ahora todo monto viaja y se guarda como entero en la unidad menor de la moneda, y el reparto distribuye el resto explícitamente:
-
-```ts
-splitCents(1000, ['ana', 'beto', 'caro']);
-// → ana: 334, beto: 333, caro: 333    (suma exacta: 1000)
-```
-
-El resto se asigna a los primeros participantes **ordenados por id**, no por orden de llegada. Eso hace que el mismo gasto se divida siempre igual, en cualquier dispositivo: los saldos no cambian según cómo llegaron los datos.
-
-También hay una sutileza en el parseo. `Math.round(Number('1.005') * 100)` devuelve `100`, no `101`, porque 1.005 se representa como 1.00499999999999989. [`parseMoneyToMinor`](shared/money.ts) trabaja sobre los dígitos como texto y nunca multiplica un float. Ese caso lo encontró un test.
-
-Detalle relacionado: no todas las monedas tienen dos decimales. El yen, el peso chileno y el colombiano no tienen unidad menor, así que cada moneda declara sus `decimals` y el formateo los respeta. Sin eso, ¥1000 se mostraría como ¥10,00.
-
-### 2. La liquidación es un greedy acotado, y está bien que lo sea
-
-Encontrar el mínimo absoluto de transferencias para saldar un grupo es NP-hard. [`settle`](shared/settlement.ts) usa una heurística greedy: el que más debe le paga al que más le deben, y se repite.
-
-No garantiza el óptimo absoluto, pero **garantiza como máximo n-1 transferencias**, porque cada paso salda por completo al menos a una de las dos personas. Para grupos de viaje reales —menos de 20 personas— el resultado es óptimo o queda a una transferencia del óptimo. La invariante que sí se verifica es que las transferencias saldan **exactamente** todos los saldos, con un test que aplica el resultado sobre los saldos y comprueba que todos queden en cero, incluido un barrido de 200 escenarios pseudoaleatorios con semilla fija.
-
-### 3. Grupos por código, sin tabla de usuarios
-
-La alternativa era registro con email u OAuth. La descarté porque el momento de uso es "estamos seis en un bar y hay que cargar la cena": pedir que cinco personas creen una cuenta ahí mismo mata el producto.
-
-El modelo es el de un documento compartido: **el código es la llave**. Quien crea el grupo puede además ponerle un PIN, que se guarda como hash PBKDF2-SHA256 con salt (100.000 iteraciones) y se canjea por un token firmado con HMAC-SHA256.
-
-El token es deliberadamente **no** un JWT completo: no hay negociación de algoritmos, y fijar HMAC-SHA256 elimina de raíz toda la familia de ataques de confusión de `alg`. Lleva el id del grupo, y el servidor compara ese id contra el de la URL en cada request — eso es lo que evita que una sesión válida para un grupo sirva para escribir en otro. Hay un test end-to-end sólo para eso.
-
-Es un modelo con un límite claro y consciente: **cualquiera con el link puede editar**. No hay permisos por persona ni historial de quién cargó qué. Para un grupo de amigos que ya se conocen, es el nivel de ceremonia correcto; para algo más, haría falta el modelo de cuentas.
-
-### 4. Un solo Worker sirve la API y el frontend
-
-El prototipo tenía el HTML en Cloudflare Pages y la API en un Worker aparte, con `Access-Control-Allow-Origin: "*"` para que se hablaran.
-
-Ahora un único Worker sirve los assets estáticos y responde `/api/*`. Al compartir origen no hay CORS, ni preflight, ni dos dominios que mantener sincronizados, ni un `ALLOWED_ORIGIN` que se olvida de actualizar. Un `wrangler deploy` publica todo.
-
-El contrato entre los dos lados vive en [`shared/`](shared/), fuera de `web/` y de `api/`: los tipos, los límites de validación y la lógica de dominio se definen una sola vez. Si cambia la forma de un payload, el frontend deja de compilar.
+| 1. Crear el grupo                              | 2. Cargar un gasto                            | 3. Compartir el código                       |
+| ---------------------------------------------- | --------------------------------------------- | -------------------------------------------- |
+| ![Crear grupo](docs/screenshots/crear-grupo.png) | ![Nuevo gasto](docs/screenshots/nuevo-gasto.png) | ![Compartir](docs/screenshots/compartir.png) |
 
 ---
 
@@ -124,7 +60,7 @@ El contrato entre los dos lados vive en [`shared/`](shared/), fuera de `web/` y 
 │                         D1 (SQLite)              │
 │                                                  │
 │  todo lo demás  ──────►  assets estáticos        │
-│                          (SPA de React)          │
+│                             (React)              │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -145,7 +81,7 @@ api/              Cloudflare Worker
   src/http.ts       Respuestas y errores
   schema.sql        Esquema de la base
 
-web/              SPA de React
+web/              React
   src/components/   UI
   src/hooks/        useGroup: estado, sesión y mutaciones
   src/lib/          Cliente HTTP, sesión, fechas, formateo
@@ -166,18 +102,16 @@ expenses (id, group_id → groups, description, amount_cents,
 expense_participants (expense_id → expenses, member_id → members)
 ```
 
-Dos detalles con intención:
+Dos detalles:
 
 - **`ON DELETE CASCADE` desde `groups`**, así borrar un grupo no deja filas huérfanas.
-- **`ON DELETE RESTRICT` en `expenses.payer_id`**: no se puede eliminar a alguien que pagó gastos. La API lo valida antes para devolver un mensaje que explique el motivo en lugar de un error de constraint. Es lo que impide que los saldos queden descuadrados por un borrado.
-
-El snapshot completo de un grupo se arma con **tres queries fijas** —integrantes, gastos y participantes— y se une en memoria, sin importar cuántos gastos tenga. Nada de N+1.
+- **`ON DELETE RESTRICT` en `expenses.payer_id`**: no se puede eliminar a alguien que pagó gastos.
 
 ---
 
 ## Correr el proyecto
 
-Requiere Node 20, 22 o 24.
+Requiere Node 20 o superior.
 
 ```bash
 git clone https://github.com/juancreynoso/cuentas-claras.git
@@ -248,26 +182,15 @@ Dos bugs reales salieron de escribir estos tests: el redondeo de `1.005`, y `far
 
 ---
 
-## Accesibilidad
-
-- Los paneles inferiores son diálogos modales de verdad: `role="dialog"`, `aria-modal`, cierran con Escape, atrapan el Tab y devuelven el foco al elemento que los abrió.
-- Todo control tiene nombre accesible; los avatares de participantes anuncian su estado (`aria-pressed`, "incluido"/"excluido").
-- Foco visible en todos los elementos interactivos.
-- Se respeta `prefers-reduced-motion`.
-- El color nunca es el único portador de información: los saldos dicen "debe" o "le deben" además de cambiar de color.
-
----
-
 ## Límites conocidos
 
 Cosas que faltan, a conciencia:
 
 - **Sin rate limiting.** El PBKDF2 de 100.000 iteraciones encarece cada intento de PIN, y hay que conocer el código de 6 caracteres antes de poder probar. Aun así, lo correcto sería sumar el binding de rate limiting de Cloudflare en `/session`. Es lo primero de la lista.
-- **Última escritura gana.** Si dos personas editan el mismo gasto a la vez, queda la última. Hace falta un `updated_at` por gasto y detección de conflicto.
-- **Sin realtime.** Los cambios de los demás aparecen al recargar. Un Durable Object por grupo con WebSockets lo resolvería.
+- **Última escritura gana.** Si dos personas editan el mismo gasto a la vez, queda la última.
+- **Sin realtime.** Los cambios de los demás aparecen al recargar.
 - **Cotizaciones a mano.** No hay API de tipo de cambio; el grupo fija la suya. Es predecible, pero se desactualiza.
 - **Cada mutación relee todo el grupo.** Es un round-trip extra a cambio de no tener estado divergente nunca. Con miles de gastos habría que pasar a updates incrementales.
-- **Sólo español.** La interfaz no está internacionalizada, aunque la inferencia de categorías entiende keywords en inglés.
 
 ---
 
@@ -275,7 +198,13 @@ Cosas que faltan, a conciencia:
 
 React 19 · TypeScript · Vite 8 · Tailwind 4 · Cloudflare Workers · D1 (SQLite) · Vitest · ESLint · GitHub Actions
 
-Sin librería de estado, sin librería de datos, sin componentes de terceros: el proyecto es lo bastante chico como para que las dependencias cuesten más de lo que aportan.
+Sin librería de estado, sin librería de datos, sin componentes de terceros.
+
+---
+
+## Contribuir
+
+Los issues y los PRs son bienvenidos: lo que falta está en [Límites conocidos](#límites-conocidos). Antes de abrir un PR, `npm run verify` tiene que pasar en verde.
 
 ---
 
